@@ -3,9 +3,9 @@
 
 using namespace std;
 
-
 int **PlateMaker(int row, int col);
-void **PathMaker(int row, int col, int **&plate);
+void PathMaker(int row, int col, int **&plate);
+void PathFinder(int row, int col, int **&plate, int **&already_pos, int sum);
 
 int main()
 {
@@ -14,21 +14,9 @@ int main()
     cin >> row >> col;
     plate = PlateMaker(row, col);
 
-    for (int i = 0; i < row; i++)
-    {
-        for (int j = 0; j < col; j++)
-            plate[i][j] = 0;
-    }
-
     PathMaker(row, col, plate);
 
-    for (int i = 0; i < row; i++)
-    {
-        for (int j = 0; j < col; j++)
-            cout << *(*(plate + i) + j) << ' ';
-
-        cout << endl;
-    }
+    PathFinder(row, col, plate, plate, 0);
 
     return 0;
 }
@@ -48,7 +36,7 @@ int **PlateMaker(int row, int col)
     return plate;
 }
 
-void **PathMaker(int row, int col, int **&plate)
+void PathMaker(int row, int col, int **&plate)
 {
     int i_pos = 0, j_pos = 0, sum = 0;
     while (i_pos != row - 1 || j_pos != col - 1)
@@ -87,4 +75,68 @@ void **PathMaker(int row, int col, int **&plate)
         }
     }
     plate[i_pos][j_pos] = sum;
+}
+
+bool U(int row, int col, int **&plate, int **&already_pos)
+{
+    
+}
+
+bool D(int row, int col, int **&plate, int **&already_pos)
+{
+
+}
+
+bool R(int row, int col, int **&plate, int **&already_pos)
+{
+
+}
+
+bool L(int row, int col, int **&plate, int **&already_pos)
+{
+
+}
+
+void PathFinder(int row, int col, int **&plate, int **&already_pos, int sum)
+{
+    // creating temp_plate
+
+    /*int**temp_plate = (int **)malloc(sizeof(int *) * row);
+    for (int i = 0; i < row; i++)
+    {
+        *(temp_plate + i) = (int *)malloc(sizeof(int) * col);
+        for (int j = 0; j < col; j++)
+        {
+            temp_plate[i][j] = rand() % 21 - 10;
+        }
+    }*/
+
+    if (*already_pos == (*(plate + row - 1) + col - 1))
+    {
+        if (sum == plate[row - 1][col - 1])
+        {
+            /* Finded */
+        }
+        else
+        {
+            return;
+        }
+    }
+    else if (U && !D && !R && !L)
+    {
+        /* code */
+    }
+    else if (!U && D && !R && !L)
+    {
+        /* code */
+    }
+    else if (!U && !D && R && !L)
+    {
+        /* code */
+    }
+    else if (!U && !D && !R && L)
+    {
+        /* code */
+    }
+    
 }
