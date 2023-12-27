@@ -1,11 +1,10 @@
 #include <iostream>
-#include <stdlib.h>
 #include <time.h>
 
 using namespace std;
 
 int **PlateMaker(int row, int col);
-int **PathMaker(int row, int col, int **plate);
+void **PathMaker(int row, int col, int **&plate);
 
 int main()
 {
@@ -14,13 +13,21 @@ int main()
     cin >> row >> col;
     plate = PlateMaker(row, col);
 
-    // for (int i = 0; i < row; i++)
-    // {
-    //     for (int j = 0; j < col; j++)
-    //         cout << *(*(plate + i) + j) << ' ';
+    for (int i = 0; i < row; i++)
+    {
+        for (int j = 0; j < col; j++)
+            plate[i][j] = 0;
+    }
 
-    //     cout << endl;
-    // }
+    PathMaker(row, col, plate);
+
+    for (int i = 0; i < row; i++)
+    {
+        for (int j = 0; j < col; j++)
+            cout << *(*(plate + i) + j) << ' ';
+
+        cout << endl;
+    }
 
     return 0;
 }
@@ -40,31 +47,44 @@ int **PlateMaker(int row, int col)
     return plate;
 }
 
-// int **PathMaker(int row, int col, int **plate)
-// {
-//     int x_pos = row, y_pos = 0, sum = 0;
-//     while (x_pos != 0 || y_pos != col)
-//     {
-//         if (x_pos != 0)
-//             for (int i = 0; i <= rand() % x_pos; i++)
-//             {
-//                 while (*(*(plate+x_pos)+y_pos) == 0)
-//                     *(*(plate+x_pos)+y_pos) = rand() % 21 - 10;
+void **PathMaker(int row, int col, int **&plate)
+{
+    int i_pos = 0, j_pos = 0, sum = 0;
+    while (i_pos != row - 1 || j_pos != col - 1)
+    {
+        if (i_pos != row - 1)
+        {
+            int rnd = rand() % (row - i_pos);
+            for (int i = 0; i < rnd; i++)
+            {
+                int rnd = rand() % 21 - 10;
+                while (rnd == 0)
+                {
+                    rnd = rand() % 21 - 10;
+                }
 
-//                 sum += *(*(plate+x_pos)+y_pos);
-//                 x_pos--;
-//             }
+                plate[i_pos][j_pos] = rnd;
+                sum += rnd;
+                i_pos++;
+            }
+        }
 
-//         if (col - y_pos != 0)
-//             for (int i = 0; i <= rand() % (col - y_pos); i++)
-//             {
-//                 while (*(*(plate+x_pos)+y_pos) == 0)
-//                     *(*(plate+x_pos)+y_pos) = rand() % 21 - 10;
+        if (j_pos != col - 1)
+        {
+            int rnd = rand() % (col - j_pos);
+            for (int i = 0; i < rnd; i++)
+            {
+                int rnd = rand() % 21 - 10;
+                while (rnd == 0)
+                {
+                    rnd = rand() % 21 - 10;
+                }
 
-//                 sum += *(*(plate+x_pos)+y_pos);
-//                 y_pos++;
-//             }
-//     }
-
-//     return plate;
-// }
+                plate[i_pos][j_pos] = rnd;
+                sum += rnd;
+                j_pos++;
+            }
+        }
+    }
+    plate[i_pos][j_pos] = sum;
+}
