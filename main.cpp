@@ -3,6 +3,7 @@
 
 using namespace std;
 
+
 int **PlateMaker(int row, int col);
 void **PathMaker(int row, int col, int **&plate);
 
@@ -79,7 +80,6 @@ void **PathMaker(int row, int col, int **&plate)
                 {
                     rnd = rand() % 21 - 10;
                 }
-
                 plate[i_pos][j_pos] = rnd;
                 sum += rnd;
                 j_pos++;
