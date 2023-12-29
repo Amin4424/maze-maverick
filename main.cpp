@@ -2,19 +2,22 @@
 #include <stdlib.h>
 #include <conio.h>
 #include <time.h>
+#include <math.h>
 
 using namespace std;
 
 void CreateMap();
+void CreateMapEasy();
+void coutmap(int row, int col, int **map);
+void CreateMapHard();
 void Playground();
 void SolveMaze();
 void History();
 void Leaderboard();
-void map(int, int);
+void monitor(int row, int col, int **map);
 void StartProgram();
 int **PlateMaker(int row, int col);
 void PathMaker(int row, int col, int **&plate);
-void PathFinder(int row, int col, int **&plate, int **&already_pos, int sum);
 
 int main()
 {
@@ -47,61 +50,160 @@ void StartProgram()
         switch (input)
         {
         case '1':
-            system("cls");
+            // system("clear");
             CreateMap();
             break;
 
         case '2':
-            system("cls");
-            Playground();
+            // system("clear");
+            // Playground();
             break;
 
         case '3':
-            system("cls");
-            SolveMaze();
+            // system("clear");
+            // SolveMaze();
             break;
 
         case '4':
-            system("cls");
-            History();
+            // system("clear");
+            // History();
             break;
         case '5':
-            system("cls");
+            // system("clear");
             Leaderboard();
             break;
 
         case '6':
-            system("cls");
+            system("clear");
             cout << "Exiting the program...";
             exit(0);
             break;
 
         default:
-            system("cls");
+            // system("clear");
             cout << "Please press a valid key" << endl;
             break;
         }
     }
 }
-// Map Section
-void map(int row, int col)
+
+void CreateMap()
+{
+    char input=0;
+    cout << "1. Easy" << endl;
+    cout << "2. Hard" << endl;
+    cout << "3. Quit" << endl;
+    while (input != '3')
+    {
+        input = getchar();
+        switch (input)
+        {
+        case '1':
+            // system("clear");
+            CreateMapEasy();
+            break;
+
+        case '2':
+            // system("clear");
+            CreateMapEasy();
+            break;
+
+        case '3':
+            // system("clear");
+            return;
+
+        default:
+            // system("clear");
+            cout << "Please press a valid key" << endl;
+            break;
+        }
+    }
+}
+
+void CreateMapEasy()
+{
+    int row, col;
+    do
+    {
+        cout << "Enter the number of rows:\n";
+        cin >> row;
+    } while (row <= 0);
+
+    do
+    {
+        cout << "Enter the number of columns:\n";
+        cin >> col;
+    } while (col <= 0);
+
+    string mapname;
+    cout << "Enter your map name:\n";
+    cin >> mapname;
+
+    int **map = PlateMaker(row, col);
+
+    PathMaker(row, col, map);
+
+    monitor(row, col, map);
+}
+
+void coutmap(int row, int col, int **map)
 {
     for (int i = 0; i < row; i++)
     {
         for (int j = 0; j < col; j++)
         {
-            cout << "+----";
+            cout << *(*(map + i) + j) << ' ';
+        }
+        cout << endl;
+    }
+}
+
+void Playground()
+{
+}
+
+void SolveMaze()
+{
+}
+
+void History()
+{
+}
+
+void Leaderboard()
+{
+}
+
+// Map Section
+void monitor(int row, int col, int **map)
+{
+    int temp;
+    for (int i = 0; i < row; i++)
+    {
+        for (int j = 0; j < col; j++)
+        {
+            cout << "+-----";
         }
         cout << "+" << endl;
         for (int j = 0; j < col; j++)
         {
-            cout << "| 01 ";
+            cout << "| ";
+            if (map[i][j] / 10 == 0)
+            {
+                if (map[i][j] >= 0)
+                    cout << "  ";
+                else
+                    cout << ' ';
+            }
+            else if (map[i][j] / 10 > 0)
+            cout << ' ';
+            cout << map[i][j] << ' ';
         }
-        cout << "|" << endl;
+        cout << '|' << endl;
     }
     for (int j = 0; j < col; j++)
     {
-        cout << "+----";
+        cout << "+-----";
     }
     cout << "+" << endl;
 }
@@ -115,7 +217,7 @@ int **PlateMaker(int row, int col)
         *(plate + i) = (int *)malloc(sizeof(int) * col);
         for (int j = 0; j < col; j++)
         {
-            *(*(plate + i) + j) = rand() % 21 - 10;
+            *(*(plate + i) + j) = 0;
         }
     }
     return plate;
@@ -128,13 +230,13 @@ void PathMaker(int row, int col, int **&plate)
     {
         if (i_pos != row - 1)
         {
-            int rnd = rand() % (row - i_pos);
+            int rnd = rand() % ((row - i_pos) / 2 + 1);
             for (int i = 0; i < rnd; i++)
             {
-                int rnd = rand() % 21 - 10;
+                int rnd = rand() % 6 - 3;
                 while (rnd == 0)
                 {
-                    rnd = rand() % 21 - 10;
+                    rnd = rand() % 6 - 3;
                 }
 
                 plate[i_pos][j_pos] = rnd;
@@ -145,13 +247,13 @@ void PathMaker(int row, int col, int **&plate)
 
         if (j_pos != col - 1)
         {
-            int rnd = rand() % (col - j_pos);
+            int rnd = rand() % ((col - j_pos) / 2 + 1);
             for (int i = 0; i < rnd; i++)
             {
-                int rnd = rand() % 21 - 10;
+                int rnd = rand() % 6 - 3;
                 while (rnd == 0)
                 {
-                    rnd = rand() % 21 - 10;
+                    rnd = rand() % 6 - 3;
                 }
                 plate[i_pos][j_pos] = rnd;
                 sum += rnd;
@@ -160,68 +262,4 @@ void PathMaker(int row, int col, int **&plate)
         }
     }
     plate[i_pos][j_pos] = sum;
-}
-
-bool U(int row, int col, int **&plate, int **&already_pos)
-{
-    
-}
-
-bool D(int row, int col, int **&plate, int **&already_pos)
-{
-
-}
-
-bool R(int row, int col, int **&plate, int **&already_pos)
-{
-
-}
-
-bool L(int row, int col, int **&plate, int **&already_pos)
-{
-
-}
-
-void PathFinder(int row, int col, int **&plate, int **&already_pos, int sum)
-{
-    // creating temp_plate
-
-    /*int**temp_plate = (int **)malloc(sizeof(int *) * row);
-    for (int i = 0; i < row; i++)
-    {
-        *(temp_plate + i) = (int *)malloc(sizeof(int) * col);
-        for (int j = 0; j < col; j++)
-        {
-            temp_plate[i][j] = rand() % 21 - 10;
-        }
-    }*/
-
-    if (*already_pos == (*(plate + row - 1) + col - 1))
-    {
-        if (sum == plate[row - 1][col - 1])
-        {
-            /* Finded */
-        }
-        else
-        {
-            return;
-        }
-    }
-    else if (U && !D && !R && !L)
-    {
-        /* code */
-    }
-    else if (!U && D && !R && !L)
-    {
-        /* code */
-    }
-    else if (!U && !D && R && !L)
-    {
-        /* code */
-    }
-    else if (!U && !D && !R && L)
-    {
-        /* code */
-    }
-    
 }

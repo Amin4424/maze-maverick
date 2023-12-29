@@ -36,3 +36,6 @@
 
 # vs code
 /.vscode
+
+# test
+test.cpp
