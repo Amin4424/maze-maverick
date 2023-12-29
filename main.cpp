@@ -1,28 +1,8 @@
 #include <iostream>
-<<<<<<< HEAD
-#include <time.h>
-
-using namespace std;
-
-int **PlateMaker(int row, int col);
-void PathMaker(int row, int col, int **&plate);
-void PathFinder(int row, int col, int **&plate, int **&already_pos, int sum);
-
-int main()
-{
-    int **plate;
-    int row, col;
-    cin >> row >> col;
-    plate = PlateMaker(row, col);
-
-    PathMaker(row, col, plate);
-
-    PathFinder(row, col, plate, plate, 0);
-
-    return 0;
-=======
 #include <stdlib.h>
 #include <conio.h>
+#include <time.h>
+
 using namespace std;
 
 void CreateMap();
@@ -32,13 +12,26 @@ void History();
 void Leaderboard();
 void map(int, int);
 void StartProgram();
+int **PlateMaker(int row, int col);
+void PathMaker(int row, int col, int **&plate);
+void PathFinder(int row, int col, int **&plate, int **&already_pos, int sum);
 
 int main()
 {
     StartProgram();
+
+    // int **plate;
+    // int row, col;
+    // cin >> row >> col;
+    // plate = PlateMaker(row, col);
+
+    // PathMaker(row, col, plate);
+
+    // PathFinder(row, col, plate, plate, 0);
+
+    return 0;
 }
 
-    // Menu
 void StartProgram()
 {
     while (1)
@@ -111,7 +104,6 @@ void map(int row, int col)
         cout << "+----";
     }
     cout << "+" << endl;
->>>>>>> main
 }
 
 int **PlateMaker(int row, int col)
