@@ -83,11 +83,11 @@ void StartProgram()
 void CreateMap()
 {
     char input = 0;
-    cout << "1. Easy" << endl;
-    cout << "2. Hard" << endl;
-    cout << "3. Quit" << endl;
     while (input != '3')
     {
+        cout << "1. Easy" << endl;
+        cout << "2. Hard" << endl;
+        cout << "3. Quit" << endl;
         input = _getch();
         switch (input)
         {
@@ -169,7 +169,7 @@ void CreateMapHard()
         cout << "Enter the lenght of path:\n";
         cin >> len;
         if ((len < (row + col - 2)) || (len >= (row * col)) || ((len - (row + col - 2)) % 2 != 0) || ((row % 2 == 0) && (col % 2 == 0) && (len = row * col - 1)))
-            cout << "Invalid path!";
+            cout << "Invalid path!\n";
     } while ((len < (row + col - 2)) || (len >= (row * col)) || ((len - (row + col - 2)) % 2 != 0) || ((row % 2 == 0) && (col % 2 == 0) && (len = row * col - 1)));
 
     cout << "Enter the minimum amount of each block:\n";
