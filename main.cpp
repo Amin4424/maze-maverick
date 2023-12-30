@@ -2,12 +2,14 @@
 #include <stdlib.h>
 #include <conio.h>
 #include <time.h>
+#include <fstream>
 #include <math.h>
 
 using namespace std;
 
 void CreateMap();
 void CreateMapEasy();
+void CreateMapHard();
 void coutmap(int row, int col, int **map);
 void CreateMapHard();
 void Playground();
@@ -17,21 +19,12 @@ void Leaderboard();
 void monitor(int row, int col, int **map);
 void StartProgram();
 int **PlateMaker(int row, int col);
-void PathMaker(int row, int col, int **&plate);
+void PathMaker(int row, int col, int sum, int **&plate);
+void PathMaker(int row, int col, int len, int min, int max, int **&plate);
 
 int main()
 {
     StartProgram();
-
-    // int **plate;
-    // int row, col;
-    // cin >> row >> col;
-    // plate = PlateMaker(row, col);
-
-    // PathMaker(row, col, plate);
-
-    // PathFinder(row, col, plate, plate, 0);
-
     return 0;
 }
 
@@ -74,7 +67,7 @@ void StartProgram()
             break;
 
         case '6':
-            system("clear");
+            // system("clear");
             cout << "Exiting the program...";
             exit(0);
             break;
@@ -89,13 +82,13 @@ void StartProgram()
 
 void CreateMap()
 {
-    char input=0;
+    char input = 0;
     cout << "1. Easy" << endl;
     cout << "2. Hard" << endl;
     cout << "3. Quit" << endl;
     while (input != '3')
     {
-        input = getchar();
+        input = _getch();
         switch (input)
         {
         case '1':
@@ -105,7 +98,7 @@ void CreateMap()
 
         case '2':
             // system("clear");
-            CreateMapEasy();
+            CreateMapHard();
             break;
 
         case '3':
@@ -141,7 +134,81 @@ void CreateMapEasy()
 
     int **map = PlateMaker(row, col);
 
-    PathMaker(row, col, map);
+    PathMaker(row, col, 0, map);
+
+    ofstream file("Maps/" + mapname + ".txt");
+    for (int i = 0; i < row; i++)
+    {
+        for (int j = 0; j < col; j++)
+        {
+            file << map[i][j] << ' ';
+        }
+        file << "\n";
+    }
+
+    monitor(row, col, map);
+}
+
+void CreateMapHard()
+{
+    int row, col, len, min, max, minB, maxB;
+    do
+    {
+        cout << "Enter the number of rows:\n";
+        cin >> row;
+    } while (row <= 0);
+
+    do
+    {
+        cout << "Enter the number of columns:\n";
+        cin >> col;
+    } while (col <= 0);
+
+    do
+    {
+        cout << "Enter the lenght of path:\n";
+        cin >> len;
+        if ((len < (row + col - 2)) || (len >= (row * col)) || ((len - (row + col - 2)) % 2 != 0) || ((row % 2 == 0) && (col % 2 == 0) && (len = row * col - 1)))
+            cout << "Invalid path!";
+    } while ((len < (row + col - 2)) || (len >= (row * col)) || ((len - (row + col - 2)) % 2 != 0) || ((row % 2 == 0) && (col % 2 == 0) && (len = row * col - 1)));
+
+    cout << "Enter the minimum amount of each block:\n";
+    cin >> min;
+
+    do
+    {
+        cout << "Enter the maximum amount of each block:\n";
+        cin >> max;
+    } while (max < min);
+
+    do
+    {
+        cout << "Enter the minimum number of blocked blocks:\n";
+        cin >> minB;
+    } while (minB > (row * col - len - 1));
+
+    do
+    {
+        cout << "Enter the maximum number of blocked blocks:\n";
+        cin >> maxB;
+    } while ((maxB > (row * col - len - 1)) || maxB < minB);
+
+    string mapname;
+    cout << "Enter your map name:\n";
+    cin >> mapname;
+
+    int **map = PlateMaker(row, col);
+    PathMaker(row, col, len, min, max, map);
+
+    ofstream file("Maps/" + mapname + ".txt");
+    for (int i = 0; i < row; i++)
+    {
+        for (int j = 0; j < col; j++)
+        {
+            file << map[i][j] << ' ';
+        }
+        file << "\n";
+    }
 
     monitor(row, col, map);
 }
@@ -196,7 +263,7 @@ void monitor(int row, int col, int **map)
                     cout << ' ';
             }
             else if (map[i][j] / 10 > 0)
-            cout << ' ';
+                cout << ' ';
             cout << map[i][j] << ' ';
         }
         cout << '|' << endl;
@@ -223,9 +290,9 @@ int **PlateMaker(int row, int col)
     return plate;
 }
 
-void PathMaker(int row, int col, int **&plate)
+void PathMaker(int row, int col, int sum, int **&plate)
 {
-    int i_pos = 0, j_pos = 0, sum = 0;
+    int i_pos = 0, j_pos = 0;
     while (i_pos != row - 1 || j_pos != col - 1)
     {
         if (i_pos != row - 1)
@@ -262,4 +329,73 @@ void PathMaker(int row, int col, int **&plate)
         }
     }
     plate[i_pos][j_pos] = sum;
+}
+
+void PathMaker(int row, int col, int len, int min, int max, int **&map)
+{
+    // it works only on even_rowed maps for now
+    int i_pos = 0, j_pos = 0, sum = 0, range, diff;
+    range = max - min + 1;
+    diff = 0 - min;
+    while (1)
+    {
+        if (i_pos % 2 == 0)
+        {
+            for (int i = 0; i < col; i++)
+            {
+                int rnd = rand() % range - diff;
+                while (rnd == 0)
+                {
+                    rnd = rand() % range - diff;
+                }
+                map[i_pos][j_pos] = rnd;
+                sum += rnd;
+                j_pos++;
+                len--;
+                if ((j_pos == col - 1) && (i_pos == row - 1))
+                {
+                    map[i_pos][j_pos] = sum;
+                    return;
+                }
+            }
+            j_pos--;
+            i_pos++;
+        }
+
+        if (i_pos % 2 == 1)
+        {
+            for (int i = 0; i < col; i++)
+            {
+                int rnd = rand() % range - diff;
+                while (rnd == 0)
+                {
+                    rnd = rand() % range - diff;
+                }
+                map[i_pos][j_pos] = rnd;
+                sum += rnd;
+                j_pos--;
+                len--;
+                if (((row - i_pos - 1) + (col - j_pos - 1) - 2) == len)
+                {
+                    j_pos++;
+                    i_pos++;
+                    int temprow = row - i_pos;
+                    int tempcol = col - j_pos;
+                    int **tempmap = PlateMaker(temprow, tempcol);
+                    PathMaker(temprow, tempcol, sum, tempmap);
+                    for (int x = 0; x < temprow; x++)
+                    {
+                        for (int y = 0; y < tempcol; y++)
+                        {
+                            map[x + i_pos][y + j_pos] = tempmap[x][y];
+                        }
+                    }
+                    delete tempmap;
+                    return;
+                }
+            }
+            j_pos++;
+            i_pos++;
+        }
+    }
 }
