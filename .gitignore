@@ -38,9 +38,9 @@
 /.vscode
 
 # directories
-/Maps/*.txt
-/Users/*.txt
-/Stats/*.txt
+/Maps/
+/Users/
+/Stats/
 
 # test
 test.cpp
