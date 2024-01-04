@@ -15,7 +15,7 @@ void coutmap(int row, int col, int **map);
 void Playground();
 void SolveMazeSection();
 void SolvingSystemMaps();
-void SolvingUserMap();
+void SolvingUserMapSection();
 void History();
 void Leaderboard();
 void monitor(int row, int col, int **map);
@@ -250,7 +250,7 @@ void SolveMazeSection()
 
         case '2':
             // system("clear");
-            SolvingUserMap();
+            SolvingUserMapSection();
             break;
 
         case '3':
@@ -432,6 +432,8 @@ void PathMaker(int row, int col, int len, int min, int max, int **&map)
     }
 }
 
+#include <iostream>
+
 void SolvingUserMapSection()
 {
     char input;
@@ -440,13 +442,18 @@ void SolvingUserMapSection()
         int row, col;
         cout << "Enter number of rows and columns for the map : ";
         cin >> row >> col;
-        int map[row][col];
+
+        
+        int** map = new int*[row];
+        for (int i = 0; i < row; ++i) {
+            map[i] = new int[col];
+        }
 
         for (int i = 0; i < row; i++)
         {
             for (int j = 0; j < col; j++)
             {
-                cout << "Enter a number for a" << i << j << " element : \n";
+                cout << "Enter a number for a" << i+1 << j+1 << " element : \n";
                 cin >> map[i][j];
             }
         }
@@ -486,6 +493,7 @@ void SolvingUserMapSection()
         {
         case 'y':
             // system("clear");
+            //SolveMaze(map)
             break;
 
         case 'n':
@@ -495,9 +503,13 @@ void SolvingUserMapSection()
         default:
             // system("clear");
             cout << "Please press a valid key" << endl;
-            continue;;
+            break;
         }
 
-
+        
+        for (int i = 0; i < row; ++i) {
+            delete[] map[i];
+        }
+        delete[] map;
     }
 }
