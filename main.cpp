@@ -21,6 +21,11 @@ void StartProgram();
 int **PlateMaker(int row, int col);
 void PathMaker(int row, int col, int sum, int **&plate);
 void PathMaker(int row, int col, int len, int min, int max, int **&plate);
+void SolveMaze();
+void SolveMaze(int row, int col, int **&map);
+void SolveMaze_1();
+bool solveMaze(int **maze, int rows, int cols, int startX, int startY, int endRow, int endCol, int pathSum, int &shortestPath);
+bool solveMaze2(int **maze, int rows, int cols, int startX, int startY, int endRow, int endCol, int pathSum, int &shortestPath);
 
 int main()
 {
@@ -54,7 +59,7 @@ void StartProgram()
 
         case '3':
             // system("clear");
-            // SolveMaze();
+            SolveMaze();
             break;
 
         case '4':
@@ -229,10 +234,6 @@ void Playground()
 {
 }
 
-void SolveMaze()
-{
-}
-
 void History()
 {
 }
@@ -398,4 +399,197 @@ void PathMaker(int row, int col, int len, int min, int max, int **&map)
             i_pos++;
         }
     }
+}
+
+void SolveMaze()
+{
+    char input = 0;
+    while (input != '3')
+    {
+        cout << "1. Enter the name of map\n   (The file has to exist in Maps/ directory)\n"
+             << endl;
+        cout << "2. Enter the map manualy" << endl;
+        cout << "3. Quit" << endl;
+        input = _getch();
+        switch (input)
+        {
+        case '1':
+            // system("clear");
+            SolveMaze_1();
+            break;
+
+        case '2':
+            // system("clear");
+            break;
+
+        case '3':
+            // system("clear");
+            return;
+
+        default:
+            // system("clear");
+            cout << "Please press a valid key" << endl;
+            break;
+        }
+    }
+}
+
+void SolveMaze_1()
+{
+    cout << "Please enter the name of txt file:\n(example: test.txt)\n";
+    string name;
+    cin >> name;
+    ifstream file("Maps/" + name);
+    while (!file)
+    {
+        cout << "Something went wrong!\nPlease try again:\n";
+        cin >> name;
+        file.open("Maps/" + name);
+    }
+    int row, col;
+    file >> row >> col;
+    int **map = new int *[row];
+    for (int i = 0; i < row; i++)
+    {
+        map[i] = new int[col];
+    }
+
+    for (int i = 0; i < row; i++)
+    {
+        for (int j = 0; j < col; i++)
+        {
+            file >> map[i][j];
+        }
+    }
+
+    file.close();
+
+    SolveMaze(row, col, map);
+}
+
+void SolveMaze(int row, int col, int **&maze)
+{
+    int startX = 0, startY = 0;
+    int endRow = row - 1, endCol = col - 1;
+    int pathSum = 0;
+    int shortestPath = INT_MAX;
+    int **maze_keeper = new int *[row];
+    for (int i = 0; i < row; ++i)
+    {
+        maze_keeper[i] = new int[col];
+    }
+    for (int i = 0; i < row; ++i)
+    {
+        for (int j = 0; j < col; ++j)
+        {
+            maze_keeper[i][j] = maze[i][j];
+        }
+    }
+
+    if (solveMaze(maze, row, col, startX, startY, endRow, endCol, pathSum, shortestPath))
+    {
+        cout << "Shortest path length: " << shortestPath << endl;
+    }
+    else
+    {
+        startX = 0, startY = 0, pathSum = 0;
+        maze = maze_keeper;
+        if (solveMaze2(maze, row, col, startX, startY, endRow, endCol, pathSum, shortestPath))
+        {
+            cout << "Shortest path length: " << shortestPath << endl;
+        }
+        else
+        {
+            cout << "No path found";
+        }
+    }
+    for (int i = 0; i < row; ++i)
+    {
+        for (int j = 0; j < col; ++j)
+        {
+            cout << maze[i][j] << ' ';
+        }
+        cout << endl;
+    }
+
+    for (int i = 0; i < row; ++i)
+    {
+        delete[] maze[i];
+    }
+    delete[] maze;
+}
+
+bool solveMaze(int **maze, int rows, int cols, int startX, int startY, int endRow, int endCol, int pathSum, int &shortestPath)
+{
+    if (startX < 0 || startX >= rows || startY < 0 || startY >= cols || maze[startX][startY] == 0)
+    {
+        return false;
+    }
+
+    if (startX == endRow && startY == endCol)
+    {
+        if (pathSum == maze[endRow][endCol])
+        {
+            if (pathSum < shortestPath)
+            {
+                shortestPath = pathSum;
+            }
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    pathSum += maze[startX][startY];
+    maze[startX][startY] = 0;
+
+    if (solveMaze(maze, rows, cols, startX + 1, startY, endRow, endCol, pathSum, shortestPath) ||
+        solveMaze(maze, rows, cols, startX - 1, startY, endRow, endCol, pathSum, shortestPath) ||
+        solveMaze(maze, rows, cols, startX, startY + 1, endRow, endCol, pathSum, shortestPath) ||
+        solveMaze(maze, rows, cols, startX, startY - 1, endRow, endCol, pathSum, shortestPath))
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool solveMaze2(int **maze, int rows, int cols, int startX, int startY, int endRow, int endCol, int pathSum, int &shortestPath)
+{
+    if (startX < 0 || startX >= rows || startY < 0 || startY >= cols || maze[startX][startY] == 0)
+    {
+        return false;
+    }
+
+    if (startX == endRow && startY == endCol)
+    {
+        if (pathSum == maze[endRow][endCol])
+        {
+            if (pathSum < shortestPath)
+            {
+                shortestPath = pathSum;
+            }
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    pathSum += maze[startX][startY];
+    maze[startX][startY] = 0;
+
+    if (
+        solveMaze2(maze, rows, cols, startX, startY + 1, endRow, endCol, pathSum, shortestPath) ||
+        solveMaze2(maze, rows, cols, startX, startY - 1, endRow, endCol, pathSum, shortestPath) ||
+        solveMaze2(maze, rows, cols, startX + 1, startY, endRow, endCol, pathSum, shortestPath) ||
+        solveMaze2(maze, rows, cols, startX - 1, startY, endRow, endCol, pathSum, shortestPath))
+    {
+        return true;
+    }
+
+    return false;
 }
