@@ -492,16 +492,7 @@ void SolveMaze(int row, int col, int **&maze)
     }
     else
     {
-        startX = 0, startY = 0, pathSum = 0;
-        maze = maze_keeper;
-        if (solveMaze2(maze, row, col, startX, startY, endRow, endCol, pathSum, shortestPath))
-        {
-            cout << "Shortest path length: " << shortestPath << endl;
-        }
-        else
-        {
-            cout << "No path found";
-        }
+        cout << "No path found";
     }
     for (int i = 0; i < row; ++i)
     {
@@ -521,8 +512,28 @@ void SolveMaze(int row, int col, int **&maze)
 
 bool solveMaze(int **maze, int rows, int cols, int startX, int startY, int endRow, int endCol, int pathSum, int &shortestPath)
 {
+    int **new_maze = new int *[rows];
+    for (int i = 0; i < rows; ++i)
+    {
+        new_maze[i] = new int[cols];
+    }
+    for (int i = 0; i < rows; ++i)
+    {
+        for (int j = 0; j < cols; ++j)
+        {
+            new_maze[i][j] = maze[i][j];
+        }
+    }
+
     if (startX < 0 || startX >= rows || startY < 0 || startY >= cols || maze[startX][startY] == 0)
     {
+
+        for (int i = 0; i < rows; ++i)
+        {
+            delete new_maze[i];
+        }
+        delete new_maze;
+
         return false;
     }
 
@@ -538,58 +549,33 @@ bool solveMaze(int **maze, int rows, int cols, int startX, int startY, int endRo
         }
         else
         {
-            return false;
-        }
-    }
 
-    pathSum += maze[startX][startY];
-    maze[startX][startY] = 0;
-
-    if (solveMaze(maze, rows, cols, startX + 1, startY, endRow, endCol, pathSum, shortestPath) ||
-        solveMaze(maze, rows, cols, startX - 1, startY, endRow, endCol, pathSum, shortestPath) ||
-        solveMaze(maze, rows, cols, startX, startY + 1, endRow, endCol, pathSum, shortestPath) ||
-        solveMaze(maze, rows, cols, startX, startY - 1, endRow, endCol, pathSum, shortestPath))
-    {
-        return true;
-    }
-
-    return false;
-}
-
-bool solveMaze2(int **maze, int rows, int cols, int startX, int startY, int endRow, int endCol, int pathSum, int &shortestPath)
-{
-    if (startX < 0 || startX >= rows || startY < 0 || startY >= cols || maze[startX][startY] == 0)
-    {
-        return false;
-    }
-
-    if (startX == endRow && startY == endCol)
-    {
-        if (pathSum == maze[endRow][endCol])
-        {
-            if (pathSum < shortestPath)
+            for (int i = 0; i < rows; ++i)
             {
-                shortestPath = pathSum;
+                delete new_maze[i];
             }
-            return true;
-        }
-        else
-        {
+            delete new_maze;
+
             return false;
         }
     }
 
     pathSum += maze[startX][startY];
-    maze[startX][startY] = 0;
+    new_maze[startX][startY] = 0;
 
-    if (
-        solveMaze2(maze, rows, cols, startX, startY + 1, endRow, endCol, pathSum, shortestPath) ||
-        solveMaze2(maze, rows, cols, startX, startY - 1, endRow, endCol, pathSum, shortestPath) ||
-        solveMaze2(maze, rows, cols, startX + 1, startY, endRow, endCol, pathSum, shortestPath) ||
-        solveMaze2(maze, rows, cols, startX - 1, startY, endRow, endCol, pathSum, shortestPath))
+    if (solveMaze(new_maze, rows, cols, startX + 1, startY, endRow, endCol, pathSum, shortestPath) ||
+        solveMaze(new_maze, rows, cols, startX - 1, startY, endRow, endCol, pathSum, shortestPath) ||
+        solveMaze(new_maze, rows, cols, startX, startY + 1, endRow, endCol, pathSum, shortestPath) ||
+        solveMaze(new_maze, rows, cols, startX, startY - 1, endRow, endCol, pathSum, shortestPath))
     {
         return true;
     }
+
+    for (int i = 0; i < rows; ++i)
+    {
+        delete new_maze[i];
+    }
+    delete new_maze;
 
     return false;
 }
