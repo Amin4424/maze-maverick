@@ -4,6 +4,7 @@
 #include <time.h>
 #include <fstream>
 #include <math.h>
+#include <cstdlib>
 
 using namespace std;
 
@@ -49,37 +50,37 @@ void StartProgram()
         switch (input)
         {
         case '1':
-            // system("clear");
+            cout << "\033[2J\033[1;1H";
             CreateMap();
             break;
 
         case '2':
-            // system("clear");
+            cout << "\033[2J\033[1;1H";
             // Playground();
             break;
 
         case '3':
-            // system("clear");
+            cout << "\033[2J\033[1;1H";
             SolveMaze();
             break;
 
         case '4':
-            // system("clear");
+            cout << "\033[2J\033[1;1H";
             // History();
             break;
         case '5':
-            // system("clear");
+            cout << "\033[2J\033[1;1H";
             Leaderboard();
             break;
 
         case '6':
-            // system("clear");
+            cout << "\033[2J\033[1;1H";
             cout << "Exiting the program...";
             exit(0);
             break;
 
         default:
-            // system("clear");
+            cout << "\033[2J\033[1;1H";
             cout << "Please press a valid key" << endl;
             break;
         }
@@ -98,21 +99,21 @@ void CreateMap()
         switch (input)
         {
         case '1':
-            // system("clear");
+            cout << "\033[2J\033[1;1H";
             CreateMapEasy();
             break;
 
         case '2':
-            // system("clear");
+            cout << "\033[2J\033[1;1H";
             CreateMapHard();
             break;
 
         case '3':
-            // system("clear");
+            cout << "\033[2J\033[1;1H";
             return;
 
         default:
-            // system("clear");
+            cout << "\033[2J\033[1;1H";
             cout << "Please press a valid key" << endl;
             break;
         }
