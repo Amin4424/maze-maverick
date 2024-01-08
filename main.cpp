@@ -19,13 +19,14 @@ void Leaderboard();
 void monitor(int row, int col, int **map);
 void StartProgram();
 int **PlateMaker(int row, int col);
-void PathMaker(int row, int col, int sum, int **&plate);
-void PathMaker(int row, int col, int len, int min, int max, int **&plate);
+void PathMaker(int row, int col, int sum, int min, int max, int **&plate);
+void PathMaker2(int row, int col, int len, int min, int max, int **&plate);
 void SolveMaze();
-void SolveMaze(int row, int col, int **&map);
 void SolveMaze_1();
-bool solveMaze(int **maze, int rows, int cols, int startX, int startY, int endRow, int endCol, int pathSum, int &shortestPath);
-bool solveMaze2(int **maze, int rows, int cols, int startX, int startY, int endRow, int endCol, int pathSum, int &shortestPath);
+void ShowPath(int row, int col, int **&map, int **&maze);
+bool solveMaze(int **maze, int rows, int cols, int startX, int startY, int endRow, int endCol, int pathSum, int &shortestPath, int **&ans);
+void SolveMaze(int row, int col, int **&map, int **&ans);
+void PlateDeleter(int row, int **&plate);
 
 int main()
 {
@@ -139,9 +140,11 @@ void CreateMapEasy()
 
     int **map = PlateMaker(row, col);
 
-    PathMaker(row, col, 0, map);
+    PathMaker(row, col, 0, -3, 3, map);
 
     ofstream file("Maps/" + mapname + ".txt");
+    file << row << endl
+         << col << endl;
     for (int i = 0; i < row; i++)
     {
         for (int j = 0; j < col; j++)
@@ -152,6 +155,7 @@ void CreateMapEasy()
     }
 
     monitor(row, col, map);
+    PlateDeleter(row, map);
 }
 
 void CreateMapHard()
@@ -203,9 +207,11 @@ void CreateMapHard()
     cin >> mapname;
 
     int **map = PlateMaker(row, col);
-    PathMaker(row, col, len, min, max, map);
+    PathMaker2(row, col, len, min, max, map);
 
     ofstream file("Maps/" + mapname + ".txt");
+    file << row << endl
+         << col << endl;
     for (int i = 0; i < row; i++)
     {
         for (int j = 0; j < col; j++)
@@ -216,6 +222,7 @@ void CreateMapHard()
     }
 
     monitor(row, col, map);
+    // PlateDeleter(row, map);
 }
 
 void coutmap(int row, int col, int **map)
@@ -291,20 +298,22 @@ int **PlateMaker(int row, int col)
     return plate;
 }
 
-void PathMaker(int row, int col, int sum, int **&plate)
+void PathMaker(int row, int col, int sum, int min, int max, int **&plate)
 {
-    int i_pos = 0, j_pos = 0;
+    int i_pos = 0, j_pos = 0, range, diff;
+    range = max - min + 1;
+    diff = 0 - min;
     while (i_pos != row - 1 || j_pos != col - 1)
     {
         if (i_pos != row - 1)
         {
-            int rnd = rand() % ((row - i_pos) / 2 + 1);
-            for (int i = 0; i < rnd; i++)
+            int rnd1 = rand() % ((row - i_pos) / 2 + 1);
+            for (int i = 0; i < rnd1; i++)
             {
-                int rnd = rand() % 6 - 3;
+                int rnd = rand() % range - diff;
                 while (rnd == 0)
                 {
-                    rnd = rand() % 6 - 3;
+                    int rnd = rand() % range - diff;
                 }
 
                 plate[i_pos][j_pos] = rnd;
@@ -315,13 +324,13 @@ void PathMaker(int row, int col, int sum, int **&plate)
 
         if (j_pos != col - 1)
         {
-            int rnd = rand() % ((col - j_pos) / 2 + 1);
-            for (int i = 0; i < rnd; i++)
+            int rnd1 = rand() % ((col - j_pos) / 2 + 1);
+            for (int i = 0; i < rnd1; i++)
             {
-                int rnd = rand() % 6 - 3;
+                int rnd = rand() % range - diff;
                 while (rnd == 0)
                 {
-                    rnd = rand() % 6 - 3;
+                    int rnd = rand() % range - diff;
                 }
                 plate[i_pos][j_pos] = rnd;
                 sum += rnd;
@@ -332,7 +341,7 @@ void PathMaker(int row, int col, int sum, int **&plate)
     plate[i_pos][j_pos] = sum;
 }
 
-void PathMaker(int row, int col, int len, int min, int max, int **&map)
+void PathMaker2(int row, int col, int len, int min, int max, int **&map)
 {
     // it works only on even_rowed maps for now
     int i_pos = 0, j_pos = 0, sum = 0, range, diff;
@@ -383,7 +392,7 @@ void PathMaker(int row, int col, int len, int min, int max, int **&map)
                     int temprow = row - i_pos;
                     int tempcol = col - j_pos;
                     int **tempmap = PlateMaker(temprow, tempcol);
-                    PathMaker(temprow, tempcol, sum, tempmap);
+                    PathMaker(temprow, tempcol, sum, min, max, tempmap);
                     for (int x = 0; x < temprow; x++)
                     {
                         for (int y = 0; y < tempcol; y++)
@@ -391,7 +400,7 @@ void PathMaker(int row, int col, int len, int min, int max, int **&map)
                             map[x + i_pos][y + j_pos] = tempmap[x][y];
                         }
                     }
-                    delete tempmap;
+                    // PlateDeleter(row, tempmap);
                     return;
                 }
             }
@@ -448,36 +457,52 @@ void SolveMaze_1()
     }
     int row, col;
     file >> row >> col;
-    int **map = new int *[row];
-    for (int i = 0; i < row; i++)
-    {
-        map[i] = new int[col];
-    }
+    int **map = PlateMaker(row, col);
 
     for (int i = 0; i < row; i++)
     {
-        for (int j = 0; j < col; i++)
+        for (int j = 0; j < col; j++)
         {
             file >> map[i][j];
         }
     }
 
     file.close();
+    int **ans = PlateMaker(row, col);
 
-    SolveMaze(row, col, map);
+    SolveMaze(row, col, map, ans);
+    ShowPath(row, col, map, ans);
+    PlateDeleter(row, ans);
 }
 
-void SolveMaze(int row, int col, int **&maze)
+void ShowPath(int row, int col, int **&map, int **&ans)
+{
+    int **path = PlateMaker(row, col);
+
+    for (int i = 0; i < row; i++)
+    {
+        for (int j = 0; j < col; j++)
+        {
+            if ((map[i][j] != ans[i][j]) || ((i == row - 1) && (j == col - 1)))
+            {
+                path[i][j] = map[i][j];
+            }
+            else
+            {
+                path[i][j] = 0;
+            }
+        }
+    }
+    PlateDeleter(row, path);
+}
+
+void SolveMaze(int row, int col, int **&maze, int **&ans)
 {
     int startX = 0, startY = 0;
     int endRow = row - 1, endCol = col - 1;
     int pathSum = 0;
     int shortestPath = INT_MAX;
-    int **maze_keeper = new int *[row];
-    for (int i = 0; i < row; ++i)
-    {
-        maze_keeper[i] = new int[col];
-    }
+    int **maze_keeper = PlateMaker(row, col);
     for (int i = 0; i < row; ++i)
     {
         for (int j = 0; j < col; ++j)
@@ -486,37 +511,21 @@ void SolveMaze(int row, int col, int **&maze)
         }
     }
 
-    if (solveMaze(maze, row, col, startX, startY, endRow, endCol, pathSum, shortestPath))
+    if (solveMaze(maze, row, col, startX, startY, endRow, endCol, pathSum, shortestPath, ans))
     {
         cout << "Shortest path length: " << shortestPath << endl;
+        ShowPath(row, col, maze_keeper, ans);
     }
     else
     {
-        cout << "No path found";
-    }
-    for (int i = 0; i < row; ++i)
-    {
-        for (int j = 0; j < col; ++j)
-        {
-            cout << maze[i][j] << ' ';
-        }
-        cout << endl;
+        cout << "No path found" << endl;
     }
 
-    for (int i = 0; i < row; ++i)
-    {
-        delete[] maze[i];
-    }
-    delete[] maze;
+    PlateDeleter(row, maze);
 }
-
-bool solveMaze(int **maze, int rows, int cols, int startX, int startY, int endRow, int endCol, int pathSum, int &shortestPath)
+bool solveMaze(int **maze, int rows, int cols, int startX, int startY, int endRow, int endCol, int pathSum, int &shortestPath, int **&ans)
 {
-    int **new_maze = new int *[rows];
-    for (int i = 0; i < rows; ++i)
-    {
-        new_maze[i] = new int[cols];
-    }
+    int **new_maze = PlateMaker(rows, cols);
     for (int i = 0; i < rows; ++i)
     {
         for (int j = 0; j < cols; ++j)
@@ -528,11 +537,7 @@ bool solveMaze(int **maze, int rows, int cols, int startX, int startY, int endRo
     if (startX < 0 || startX >= rows || startY < 0 || startY >= cols || maze[startX][startY] == 0)
     {
 
-        for (int i = 0; i < rows; ++i)
-        {
-            delete new_maze[i];
-        }
-        delete new_maze;
+        PlateDeleter(rows, new_maze);
 
         return false;
     }
@@ -544,17 +549,20 @@ bool solveMaze(int **maze, int rows, int cols, int startX, int startY, int endRo
             if (pathSum < shortestPath)
             {
                 shortestPath = pathSum;
+                for (int i = 0; i < rows; i++)
+                {
+                    for (int j = 0; j < cols; j++)
+                    {
+                        ans[i][j] = maze[i][j];
+                    }
+                }
             }
             return true;
         }
         else
         {
 
-            for (int i = 0; i < rows; ++i)
-            {
-                delete new_maze[i];
-            }
-            delete new_maze;
+            PlateDeleter(rows, new_maze);
 
             return false;
         }
@@ -563,19 +571,24 @@ bool solveMaze(int **maze, int rows, int cols, int startX, int startY, int endRo
     pathSum += maze[startX][startY];
     new_maze[startX][startY] = 0;
 
-    if (solveMaze(new_maze, rows, cols, startX + 1, startY, endRow, endCol, pathSum, shortestPath) ||
-        solveMaze(new_maze, rows, cols, startX - 1, startY, endRow, endCol, pathSum, shortestPath) ||
-        solveMaze(new_maze, rows, cols, startX, startY + 1, endRow, endCol, pathSum, shortestPath) ||
-        solveMaze(new_maze, rows, cols, startX, startY - 1, endRow, endCol, pathSum, shortestPath))
+    if (solveMaze(new_maze, rows, cols, startX + 1, startY, endRow, endCol, pathSum, shortestPath, ans) ||
+        solveMaze(new_maze, rows, cols, startX - 1, startY, endRow, endCol, pathSum, shortestPath, ans) ||
+        solveMaze(new_maze, rows, cols, startX, startY + 1, endRow, endCol, pathSum, shortestPath, ans) ||
+        solveMaze(new_maze, rows, cols, startX, startY - 1, endRow, endCol, pathSum, shortestPath, ans))
     {
         return true;
     }
 
-    for (int i = 0; i < rows; ++i)
-    {
-        delete new_maze[i];
-    }
-    delete new_maze;
+    PlateDeleter(rows, new_maze);
 
     return false;
+}
+
+void PlateDeleter(int row, int **&plate)
+{
+    for (int i = 0; i < row; i++)
+    {
+        delete plate[i];
+    }
+    delete plate;
 }
