@@ -5,7 +5,7 @@
 #include <fstream>
 #include <math.h>
 #include <cstdlib>
-
+#include <algorithm>
 using namespace std;
 
 void CreateMap();
@@ -253,33 +253,49 @@ void Leaderboard()
 // Map Section
 void monitor(int row, int col, int **map)
 {
+    int max = map[0][0];
+    for (int i = 0; i < row; i++)
+    {
+        for (int j = 0; j < col; j++)
+        {
+            if (map[i][j] > max)
+            {
+                max = map[i][j];
+            }
+        }
+    }
+    string numberstring = to_string(max);
+    int NumberOfDigits = numberstring.length();
     int temp;
     for (int i = 0; i < row; i++)
     {
         for (int j = 0; j < col; j++)
         {
-            cout << "+-----";
+            cout << "+";
+            for (int k = 0; k < NumberOfDigits; k++)
+                cout << "-";
+            cout << "----";
         }
         cout << "+" << endl;
         for (int j = 0; j < col; j++)
         {
-            cout << "| ";
-            if (map[i][j] / 10 == 0)
-            {
-                if (map[i][j] >= 0)
-                    cout << "  ";
-                else
-                    cout << ' ';
-            }
-            else if (map[i][j] / 10 > 0)
-                cout << ' ';
-            cout << map[i][j] << ' ';
+            cout << '|';
+            int spaces = (NumberOfDigits - to_string(map[i][j]).length()) / 2;
+            for (int k = 0; k < spaces; k++)
+                cout << " ";
+
+            cout << "  " << map[i][j] << "  ";
+            for (int k = 0; k < NumberOfDigits - spaces - to_string(map[i][j]).length(); k++)
+                cout << " ";
         }
         cout << '|' << endl;
     }
     for (int j = 0; j < col; j++)
     {
-        cout << "+-----";
+        cout << "+";
+        for (int k = 0; k < NumberOfDigits; k++)
+            cout << "-";
+        cout << "----";
     }
     cout << "+" << endl;
 }
