@@ -4,7 +4,9 @@
 #include <time.h>
 #include <fstream>
 #include <math.h>
+#include <vector>
 #include <cstdlib>
+#include <windows.h>
 
 using namespace std;
 
@@ -18,6 +20,7 @@ void SolveMaze();
 void History();
 void Leaderboard();
 void monitor(int row, int col, int **map);
+void monitor(int row, int col, int **path, int **map);
 void StartProgram();
 int **PlateMaker(int row, int col);
 void PathMaker(int row, int col, int sum, int min, int max, int **&plate);
@@ -28,6 +31,7 @@ void ShowPath(int row, int col, int **&map, int **&maze);
 bool solveMaze(int **maze, int rows, int cols, int startX, int startY, int endRow, int endCol, int pathSum, int &shortestPath, int **&ans);
 void SolveMaze(int row, int col, int **&map, int **&ans);
 void PlateDeleter(int row, int **&plate);
+void Blocker(int Bmin, int Bmax, int row, int col, int **&maze);
 
 int main()
 {
@@ -143,6 +147,8 @@ void CreateMapEasy()
 
     PathMaker(row, col, 0, -3, 3, map);
 
+    Blocker(2, 5, row, col, map);
+
     ofstream file("Maps/" + mapname + ".txt");
     file << row << endl
          << col << endl;
@@ -209,6 +215,7 @@ void CreateMapHard()
 
     int **map = PlateMaker(row, col);
     PathMaker2(row, col, len, min, max, map);
+    Blocker(minB, maxB, row, col, map);
 
     ofstream file("Maps/" + mapname + ".txt");
     file << row << endl
@@ -274,6 +281,51 @@ void monitor(int row, int col, int **map)
             else if (map[i][j] / 10 > 0)
                 cout << ' ';
             cout << map[i][j] << ' ';
+        }
+        cout << '|' << endl;
+    }
+    for (int j = 0; j < col; j++)
+    {
+        cout << "+-----";
+    }
+    cout << "+" << endl;
+}
+
+void monitor(int row, int col, int **path, int **map)
+{
+    int temp;
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    for (int i = 0; i < row; i++)
+    {
+        for (int j = 0; j < col; j++)
+        {
+            cout << "+-----";
+        }
+        cout << "+" << endl;
+        for (int j = 0; j < col; j++)
+        {
+            cout << "| ";
+            if (map[i][j] / 10 == 0)
+            {
+                if (map[i][j] >= 0)
+                    cout << "  ";
+                else
+                    cout << ' ';
+            }
+            else if (map[i][j] / 10 > 0)
+                cout << ' ';
+            if ((map[i][j] == path[i][j])&&(map[i][j]!=0))
+            {
+                SetConsoleTextAttribute(hConsole, 10);
+                cout << map[i][j];
+                SetConsoleTextAttribute(hConsole, 7);
+            }
+            else
+            {
+                cout << map[i][j];
+            }
+
+            cout << ' ';
         }
         cout << '|' << endl;
     }
@@ -472,7 +524,7 @@ void SolveMaze_1()
     int **ans = PlateMaker(row, col);
 
     SolveMaze(row, col, map, ans);
-    ShowPath(row, col, map, ans);
+    // ShowPath(row, col, map, ans);
     PlateDeleter(row, ans);
 }
 
@@ -494,7 +546,8 @@ void ShowPath(int row, int col, int **&map, int **&ans)
             }
         }
     }
-    PlateDeleter(row, path);
+    monitor(row, col, path, map);
+    // PlateDeleter(row, path);
 }
 
 void SolveMaze(int row, int col, int **&maze, int **&ans)
@@ -592,4 +645,51 @@ void PlateDeleter(int row, int **&plate)
         delete plate[i];
     }
     delete plate;
+}
+
+void Blocker(int Bmin, int Bmax, int row, int col, int **&maze)
+{
+    int diff = Bmax - Bmin + 1;
+    int ZB = rand() % diff + Bmin;
+    int min = INT_MAX;
+    int max = INT_MIN;
+    vector<int *> zeros;
+    for (int i = 0; i < row; i++)
+    {
+        for (int j = 0; j < col; j++)
+        {
+            if ((i == row - 1) && (j == col - 1))
+            {
+                continue;
+            }
+            else if (maze[i][j] == 0)
+            {
+                zeros.push_back(&maze[i][j]);
+            }
+            else
+            {
+                if (maze[i][j] > max)
+                {
+                    max = maze[i][j];
+                }
+
+                if (maze[i][j] < min)
+                {
+                    min = maze[i][j];
+                }
+            }
+        }
+    }
+    while (zeros.size() > ZB)
+    {
+        int ind = rand() % (zeros.size() + 1);
+        int rnd = rand() % (max - min + 1) + min;
+        while (rnd == 0)
+        {
+            rnd = rand() % (max - min + 1) + min;
+        }
+        *(zeros[ind]) = rnd;
+        zeros[ind] = zeros[zeros.size() - 1];
+        zeros.pop_back();
+    }
 }
