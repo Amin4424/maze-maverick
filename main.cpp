@@ -353,20 +353,19 @@ int **PlateMaker(int row, int col)
 
 void PathMaker(int row, int col, int sum, int min, int max, int **&plate)
 {
-    int i_pos = 0, j_pos = 0, range, diff;
+    int i_pos = 0, j_pos = 0, range;
     range = max - min + 1;
-    diff = 0 - min;
-    while (i_pos != row - 1 || j_pos != col - 1)
+    while (i_pos < row - 1 || j_pos < col - 1)
     {
-        if (i_pos != row - 1)
+        if (i_pos < row - 1)
         {
             int rnd1 = rand() % ((row - i_pos) / 2 + 1);
             for (int i = 0; i < rnd1; i++)
             {
-                int rnd = rand() % range - diff;
+                int rnd = rand() % range + min;
                 while (rnd == 0)
                 {
-                    int rnd = rand() % range - diff;
+                    rnd = rand() % range + min;
                 }
 
                 plate[i_pos][j_pos] = rnd;
@@ -375,15 +374,15 @@ void PathMaker(int row, int col, int sum, int min, int max, int **&plate)
             }
         }
 
-        if (j_pos != col - 1)
+        if (j_pos < col - 1)
         {
             int rnd1 = rand() % ((col - j_pos) / 2 + 1);
             for (int i = 0; i < rnd1; i++)
             {
-                int rnd = rand() % range - diff;
+                int rnd = rand() % range + min;
                 while (rnd == 0)
                 {
-                    int rnd = rand() % range - diff;
+                    rnd = rand() % range + min;
                 }
                 plate[i_pos][j_pos] = rnd;
                 sum += rnd;
