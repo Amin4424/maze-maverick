@@ -9,14 +9,15 @@
 #include <windows.h>
 #include <algorithm>
 #include <string>
+#include <filesystem>
 using namespace std;
-
+namespace fs = filesystem;
 void CreateMap();
 void CreateMapEasy();
 void CreateMapHard();
 void coutmap(int row, int col, int **map);
 void CreateMapHard();
-void Playground();
+void PlaygroundSection();
 void SolveMaze();
 void History();
 void Leaderboard();
@@ -33,6 +34,7 @@ bool solveMaze(int **maze, int rows, int cols, int startX, int startY, int endRo
 void SolveMaze(int row, int col, int **&map, int **&ans);
 void PlateDeleter(int row, int **&plate);
 void Blocker(int Bmin, int Bmax, int row, int col, int **&maze);
+void ColorizeAndMonitor(int row, int col, int **map, int Pos_x, int Pos_y);
 
 int main()
 {
@@ -45,7 +47,7 @@ void StartProgram()
     while (1)
     {
         cout << "1. Create a New Map" << endl;
-        cout << "2. Playground" << endl;
+        cout << "2. PlaygroundSection" << endl;
         cout << "3. Solve a Maze" << endl;
         cout << "4. History" << endl;
         cout << "5. Leaderboard" << endl;
@@ -61,7 +63,7 @@ void StartProgram()
 
         case '2':
             cout << "\033[2J\033[1;1H";
-            // Playground();
+            PlaygroundSection();
             break;
 
         case '3':
@@ -246,8 +248,107 @@ void coutmap(int row, int col, int **map)
     }
 }
 
-void Playground()
+void PlaygroundSection()
 {
+    cout << "Choose your option: \n";
+    cout << "1. Choosing a map from pre-made maps \n";
+    cout << "2. Reading a map\n";
+    cout << "3. Quit\n";
+    char option;
+    option = _getch();
+
+    switch (option)
+    {
+    case '1':
+        system("cls");
+        string path = "Maps";
+        cout << "Choose the map:\n";
+        for (const auto &entry : fs::directory_iterator(path))
+        {
+            cout << entry.path().filename() << endl;
+        }
+        string name;
+        cin >> name;
+        ifstream file("Maps/" + name);
+        if (!file.is_open())
+        {
+            cout << "Error: Unable to open file" << endl;
+            break;
+        }
+
+        int row, col;
+        file >> row >> col;
+        int MaxLengthOfIndex = 0;
+        int **map = new int *[row];
+        for (int i = 0; i < row; ++i)
+        {
+            map[i] = new int[col];
+            for (int j = 0; j < col; ++j)
+            {
+
+                if (!(file >> map[i][j]))
+                {
+                    cout << "Error: Unable to read from file" << endl;
+                    for (int k = 0; k < i; ++k)
+                        delete[] map[k];
+
+                    delete[] map;
+                    file.close();
+                    return;
+                }
+            }
+        }
+        for (int i = 0; i < row; i++)
+        {
+            for (int j = 0; j < col; j++)
+            {
+                if (to_string(map[i][j]).size() > MaxLengthOfIndex)
+                {
+                    MaxLengthOfIndex = to_string(map[i][j]).size();
+                }
+            }
+        }
+        file.close();
+        int I = 0, J = 0;
+        char direction;
+        string input;
+        getline(cin, input);
+        system("cls");
+        monitor(row, col, map);
+        while (1)
+        {
+            direction = _getch();
+            switch (direction)
+            {
+            case 'w':
+                system("cls");
+                I -= 1;
+                ColorizeAndMonitor(row, col, map, I, J);
+                continue;
+            case 's':
+                system("cls");
+                I += 1;
+                ColorizeAndMonitor(row, col, map, I, J);
+                continue;
+            case 'a':
+                system("cls");
+                J -= 1;
+                ColorizeAndMonitor(row, col, map, I, J);
+                continue;
+            case 'd':
+                system("cls");
+                J += 1;
+                ColorizeAndMonitor(row, col, map, I, J);
+                continue;
+            case 'q':
+                system("cls");
+                return;
+            }
+        }
+        for (int i = 0; i < row; ++i)
+            delete[] map[i];
+        delete[] map;
+    }
 }
 
 void History()
@@ -538,7 +639,6 @@ void SolveMaze_1()
     int **ans = PlateMaker(row, col);
 
     SolveMaze(row, col, map, ans);
-    // ShowPath(row, col, map, ans);
     PlateDeleter(row, ans);
 }
 
@@ -705,4 +805,77 @@ void Blocker(int Bmin, int Bmax, int row, int col, int **&maze)
         zeros[ind] = zeros[zeros.size() - 1];
         zeros.pop_back();
     }
+}
+void ColorizeAndMonitor(int row, int col, int **map, int Pos_x, int Pos_y)
+{
+    vector<int> visited_i;
+    vector<int> visited_j;
+    int MaxLength = to_string(map[0][0]).size();
+    for (int i = 0; i < row; i++)
+    {
+        for (int j = 0; j < col; j++)
+        {
+            if (to_string(map[i][j]).size() > MaxLength)
+                MaxLength = to_string(map[i][j]).size();
+        }
+    }
+
+    for (int i = 0; i < row; i++)
+    {
+        for (int j = 0; j < col; j++)
+        {
+            cout << "+";
+            for (int k = 0; k < MaxLength + 2; k++)
+            {
+                cout << "-";
+            }
+        }
+        cout << "+" << endl;
+        
+        for (int j = 0; j < col ; j++)
+        {
+            bool checkifprinted=false;
+            int lengthofnumber = to_string(map[i][j]).size();
+            cout << '|';
+            for (int k = 1; k <= (MaxLength - lengthofnumber) + 2; k += 2)
+            {
+                cout << ' ';
+            }
+            for (int m = 0; m < visited_i.size(); m++)
+            {
+                for (int n = 0 + m; n <= m; n++)
+                {
+                    if (i == visited_i[m] && j == visited_j[n])
+                    {
+                        cout<<"\033[1;32m"<<map[i][j];
+                        checkifprinted=true;
+                    }
+                }
+            }
+            if (i == Pos_x && j == Pos_y)
+            {
+                cout << "\033[1;33m" << map[i][j] << "\033[0m";
+                visited_i.push_back(i);
+                visited_j.push_back(j);
+            }
+            if(!checkifprinted)
+              cout<<map[i][j];
+            for (int k = 1; k <= (MaxLength - lengthofnumber) + 1; k += 2)
+            {
+                cout << ' ';
+            }
+        }
+
+        cout << '|' << endl;
+    }
+
+    for (int j = 0; j < col; j++)
+    {
+        cout << "+";
+        for (int k = 0; k < MaxLength + 2; k++)
+        {
+            cout << "-";
+        }
+    }
+    cout << "+" << endl;
 }
