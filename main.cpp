@@ -7,7 +7,8 @@
 #include <vector>
 #include <cstdlib>
 #include <windows.h>
-
+#include <algorithm>
+#include <string>
 using namespace std;
 
 void CreateMap();
@@ -260,33 +261,53 @@ void Leaderboard()
 // Map Section
 void monitor(int row, int col, int **map)
 {
-    int temp;
+    int MaxLength = to_string(map[0][0]).size();
     for (int i = 0; i < row; i++)
     {
         for (int j = 0; j < col; j++)
         {
-            cout << "+-----";
+            if (to_string(map[i][j]).size() > MaxLength)
+                MaxLength = to_string(map[i][j]).size();
         }
-        cout << "+" << endl;
+    }
+
+    for (int i = 0; i < row; i++)
+    {
         for (int j = 0; j < col; j++)
         {
-            cout << "| ";
-            if (map[i][j] / 10 == 0)
+            cout << "+";
+            for (int k = 0; k < MaxLength + 2; k++)
             {
-                if (map[i][j] >= 0)
-                    cout << "  ";
-                else
-                    cout << ' ';
+                cout << "-";
             }
-            else if (map[i][j] / 10 > 0)
-                cout << ' ';
-            cout << map[i][j] << ' ';
         }
+        cout << "+" << endl;
+
+        for (int j = 0; j < col; j++)
+        {
+            int lengthofnumber = to_string(map[i][j]).size();
+            cout << '|';
+            for (int k = 1; k <= (MaxLength - lengthofnumber) + 2; k += 2)
+            {
+                cout << ' ';
+            }
+            cout << map[i][j];
+            for (int k = 1; k <= (MaxLength - lengthofnumber) + 1; k += 2)
+            {
+                cout << ' ';
+            }
+        }
+
         cout << '|' << endl;
     }
+
     for (int j = 0; j < col; j++)
     {
-        cout << "+-----";
+        cout << "+";
+        for (int k = 0; k < MaxLength + 2; k++)
+        {
+            cout << "-";
+        }
     }
     cout << "+" << endl;
 }
@@ -314,7 +335,7 @@ void monitor(int row, int col, int **path, int **map)
             }
             else if (map[i][j] / 10 > 0)
                 cout << ' ';
-            if ((map[i][j] == path[i][j])&&(map[i][j]!=0))
+            if ((map[i][j] == path[i][j]) && (map[i][j] != 0))
             {
                 SetConsoleTextAttribute(hConsole, 10);
                 cout << map[i][j];
@@ -469,8 +490,7 @@ void SolveMaze()
     {
         cout << "1. Enter the name of map\n   (The file has to exist in Maps/ directory)\n"
              << endl;
-        cout << "2. Enter the map manualy" << endl;
-        cout << "3. Quit" << endl;
+        cout << "2. Quit" << endl;
         input = _getch();
         switch (input)
         {
@@ -478,12 +498,7 @@ void SolveMaze()
             // system("clear");
             SolveMaze_1();
             break;
-
         case '2':
-            // system("clear");
-            break;
-
-        case '3':
             // system("clear");
             return;
 
@@ -566,7 +581,6 @@ void SolveMaze(int row, int col, int **&maze, int **&ans)
 
     if (solveMaze(maze, row, col, startX, startY, endRow, endCol, pathSum, shortestPath, ans))
     {
-        cout << "Shortest path length: " << shortestPath << endl;
         ShowPath(row, col, maze_keeper, ans);
     }
     else
