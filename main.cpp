@@ -12,6 +12,13 @@
 #include <filesystem>
 using namespace std;
 namespace fs = filesystem;
+#define RESET "\033[0m"
+#define RED "\033[31m"
+#define GREEN "\033[32m"
+#define YELLOW "\033[33m"
+#define BLUE "\033[34m"
+#define CYAN "\033[0;36m"
+#define MAGENTA "\033[0;35m"
 void CreateMap();
 void CreateMapEasy();
 void CreateMapHard();
@@ -34,10 +41,11 @@ bool solveMaze(int **maze, int rows, int cols, int startX, int startY, int endRo
 void SolveMaze(int row, int col, int **&map, int **&ans);
 void PlateDeleter(int row, int **&plate);
 void Blocker(int Bmin, int Bmax, int row, int col, int **&maze);
-void ColorizeAndMonitor(int row, int col, int **map, int Pos_x, int Pos_y);
+void ColorizeAndMonitor(int row, int col, int **map, int Pos_x, int Pos_y, int pathSum, vector<int> vis_i, vector<int> vis_j);
 
 int main()
 {
+    system("cls");
     StartProgram();
     return 0;
 }
@@ -46,48 +54,49 @@ void StartProgram()
 {
     while (1)
     {
-        cout << "1. Create a New Map" << endl;
-        cout << "2. PlaygroundSection" << endl;
-        cout << "3. Solve a Maze" << endl;
-        cout << "4. History" << endl;
-        cout << "5. Leaderboard" << endl;
-        cout << "6. Exit" << endl;
+        cout << BLUE << "1. Create a New Map" << endl;
+        cout << RED << "2. PlaygroundSection" << endl;
+        cout << GREEN << "3. Solve a Maze" << endl;
+        cout << YELLOW << "4. History" << endl;
+        cout << CYAN << "5. Leaderboard" << endl;
+        cout << MAGENTA << "6. Exit" << endl;
+        cout << RESET;
 
         char input = _getch();
         switch (input)
         {
         case '1':
-            cout << "\033[2J\033[1;1H";
+            system("cls");
             CreateMap();
             break;
 
         case '2':
-            cout << "\033[2J\033[1;1H";
+            system("cls");
             PlaygroundSection();
             break;
 
         case '3':
-            cout << "\033[2J\033[1;1H";
+            system("cls");
             SolveMaze();
             break;
 
         case '4':
-            cout << "\033[2J\033[1;1H";
+            system("cls");
             // History();
             break;
         case '5':
-            cout << "\033[2J\033[1;1H";
+            system("cls");
             Leaderboard();
             break;
 
         case '6':
-            cout << "\033[2J\033[1;1H";
+            system("cls");
             cout << "Exiting the program...";
             exit(0);
             break;
 
         default:
-            cout << "\033[2J\033[1;1H";
+            system("cls");
             cout << "Please press a valid key" << endl;
             break;
         }
@@ -106,21 +115,21 @@ void CreateMap()
         switch (input)
         {
         case '1':
-            cout << "\033[2J\033[1;1H";
+            system("cls");
             CreateMapEasy();
             break;
 
         case '2':
-            cout << "\033[2J\033[1;1H";
+            system("cls");
             CreateMapHard();
             break;
 
         case '3':
-            cout << "\033[2J\033[1;1H";
+            system("cls");
             return;
 
         default:
-            cout << "\033[2J\033[1;1H";
+            system("cls");
             cout << "Please press a valid key" << endl;
             break;
         }
@@ -260,6 +269,7 @@ void PlaygroundSection()
     switch (option)
     {
     case '1':
+    {
         system("cls");
         string path = "Maps";
         cout << "Choose the map:\n";
@@ -288,6 +298,7 @@ void PlaygroundSection()
 
                 if (!(file >> map[i][j]))
                 {
+                    system("cls");
                     cout << "Error: Unable to read from file" << endl;
                     for (int k = 0; k < i; ++k)
                         delete[] map[k];
@@ -309,36 +320,77 @@ void PlaygroundSection()
             }
         }
         file.close();
-        int I = 0, J = 0;
+        int I = 0, J = 0, Sum = 0;
+        vector<int> vis_i;
+        vector<int> vis_j;
+        vis_i.push_back(I);
+        vis_j.push_back(J);
+        Sum += map[I][J];
         char direction;
         string input;
         getline(cin, input);
         system("cls");
-        monitor(row, col, map);
+        ColorizeAndMonitor(row, col, map, I, J, Sum, vis_i, vis_j);
         while (1)
         {
+            if (Sum == map[row - 1][col - 1] && I == row - 1 && J == col - 1)
+            {
+                system("cls");
+                cout << MAGENTA << "Congratulations.You won!";
+                Sleep(2000);
+                system("cls");
+                return;
+            }
             direction = _getch();
             switch (direction)
             {
             case 'w':
                 system("cls");
-                I -= 1;
-                ColorizeAndMonitor(row, col, map, I, J);
+                if (I - 1 >= 0 && map[I - 1][J] != 0)
+                {
+                    I -= 1;
+                    if (map[I][J]!=map[row-1][col-1])
+                        Sum += map[I][J];
+                    vis_i.push_back(I);
+                    vis_j.push_back(J);
+                }
+                ColorizeAndMonitor(row, col, map, I, J, Sum, vis_i, vis_j);
                 continue;
             case 's':
                 system("cls");
-                I += 1;
-                ColorizeAndMonitor(row, col, map, I, J);
+                if (I + 1 < row && map[I + 1][J] != 0)
+                {
+                    I += 1;
+                    if (map[I][J]!=map[row-1][col-1])
+                        Sum += map[I][J];
+                    vis_i.push_back(I);
+                    vis_j.push_back(J);
+                }
+                ColorizeAndMonitor(row, col, map, I, J, Sum, vis_i, vis_j);
                 continue;
             case 'a':
                 system("cls");
-                J -= 1;
-                ColorizeAndMonitor(row, col, map, I, J);
+                if (J - 1 >= 0 && map[I][J - 1] != 0)
+                {
+                    J -= 1;
+                    if (map[I][J]!=map[row-1][col-1])
+                        Sum += map[I][J];
+                    vis_i.push_back(I);
+                    vis_j.push_back(J);
+                }
+                ColorizeAndMonitor(row, col, map, I, J, Sum, vis_i, vis_j);
                 continue;
             case 'd':
                 system("cls");
-                J += 1;
-                ColorizeAndMonitor(row, col, map, I, J);
+                if (J + 1 < col && map[I][J + 1] != 0)
+                {
+                    J += 1;
+                    if (map[I][J]!=map[row-1][col-1])
+                        Sum += map[I][J];
+                    vis_i.push_back(I);
+                    vis_j.push_back(J);
+                }
+                ColorizeAndMonitor(row, col, map, I, J, Sum, vis_i, vis_j);
                 continue;
             case 'q':
                 system("cls");
@@ -348,6 +400,16 @@ void PlaygroundSection()
         for (int i = 0; i < row; ++i)
             delete[] map[i];
         delete[] map;
+        break;
+    }
+    case '3':
+        system("cls");
+        return;
+
+    default:
+        system("cls");
+        cout << "Please press a valid key" << endl;
+        break;
     }
 }
 
@@ -520,17 +582,16 @@ void PathMaker2(int row, int col, int len, int min, int max, int **&map)
     // it works only on even_rowed maps for now
     int i_pos = 0, j_pos = 0, sum = 0, range, diff;
     range = max - min + 1;
-    diff = 0 - min;
     while (1)
     {
         if (i_pos % 2 == 0)
         {
             for (int i = 0; i < col; i++)
             {
-                int rnd = rand() % range - diff;
+                int rnd = rand() % range + min;
                 while (rnd == 0)
                 {
-                    rnd = rand() % range - diff;
+                    rnd = rand() % range + min;
                 }
                 map[i_pos][j_pos] = rnd;
                 sum += rnd;
@@ -589,22 +650,22 @@ void SolveMaze()
     char input = 0;
     while (input != '3')
     {
-        cout << "1. Enter the name of map\n   (The file has to exist in Maps/ directory)\n"
+        cout << "1. Enter the name of map\n   (The file exists in Maps/ directory)\n"
              << endl;
         cout << "2. Quit" << endl;
         input = _getch();
         switch (input)
         {
         case '1':
-            // system("clear");
+            system("cls");
             SolveMaze_1();
             break;
         case '2':
-            // system("clear");
+            system("cls");
             return;
 
         default:
-            // system("clear");
+            system("cls");
             cout << "Please press a valid key" << endl;
             break;
         }
@@ -614,8 +675,14 @@ void SolveMaze()
 void SolveMaze_1()
 {
     cout << "Please enter the name of txt file:\n(example: test.txt)\n";
+    string path = "Maps";
+    for (const auto &entry : fs::directory_iterator(path))
+    {
+        cout << entry.path().filename() << endl;
+    }
     string name;
     cin >> name;
+    system("cls");
     ifstream file("Maps/" + name);
     while (!file)
     {
@@ -806,10 +873,8 @@ void Blocker(int Bmin, int Bmax, int row, int col, int **&maze)
         zeros.pop_back();
     }
 }
-void ColorizeAndMonitor(int row, int col, int **map, int Pos_x, int Pos_y)
+void ColorizeAndMonitor(int row, int col, int **map, int Pos_x, int Pos_y, int pathSum, vector<int> vis_i, vector<int> vis_j)
 {
-    vector<int> visited_i;
-    vector<int> visited_j;
     int MaxLength = to_string(map[0][0]).size();
     for (int i = 0; i < row; i++)
     {
@@ -831,35 +896,42 @@ void ColorizeAndMonitor(int row, int col, int **map, int Pos_x, int Pos_y)
             }
         }
         cout << "+" << endl;
-        
-        for (int j = 0; j < col ; j++)
+
+        for (int j = 0; j < col; j++)
         {
-            bool checkifprinted=false;
+            bool checkifprinted = false, checkifvisited = false;
             int lengthofnumber = to_string(map[i][j]).size();
             cout << '|';
             for (int k = 1; k <= (MaxLength - lengthofnumber) + 2; k += 2)
             {
                 cout << ' ';
             }
-            for (int m = 0; m < visited_i.size(); m++)
+            if (i == Pos_x && j == Pos_y)
             {
-                for (int n = 0 + m; n <= m; n++)
+                cout << RED << map[i][j] << RESET;
+                checkifprinted = true;
+            }
+            if (!checkifprinted)
+            {
+                for (int m = 0; m < vis_i.size(); m++)
                 {
-                    if (i == visited_i[m] && j == visited_j[n])
+                    for (int n = m; n <= m; n++)
                     {
-                        cout<<"\033[1;32m"<<map[i][j];
-                        checkifprinted=true;
+                        if (i == vis_i[m] && j == vis_j[n])
+                        {
+                            cout << GREEN << map[i][j] << RESET;
+                            checkifvisited = true;
+                        }
                     }
                 }
             }
-            if (i == Pos_x && j == Pos_y)
+            if (!checkifprinted && !checkifvisited)
             {
-                cout << "\033[1;33m" << map[i][j] << "\033[0m";
-                visited_i.push_back(i);
-                visited_j.push_back(j);
+                if (map[i][j] == 0)
+                    cout << YELLOW << map[i][j] << RESET;
+                else
+                    cout << map[i][j];
             }
-            if(!checkifprinted)
-              cout<<map[i][j];
             for (int k = 1; k <= (MaxLength - lengthofnumber) + 1; k += 2)
             {
                 cout << ' ';
@@ -878,4 +950,6 @@ void ColorizeAndMonitor(int row, int col, int **map, int Pos_x, int Pos_y)
         }
     }
     cout << "+" << endl;
+    cout << CYAN << "current pathsum is :   " << GREEN << pathSum << endl;
+    cout << MAGENTA << "Press 'q' to exit from this section" << RESET;
 }
