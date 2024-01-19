@@ -26,21 +26,21 @@ void StartProgram();
 void CreateMapSection();
 void CreateMapEasy();
 void CreateMapHard();
-void PlaygroundSection();
-void SolveMazeSection();
-bool bruteForce(int **maze, int rows, int cols, int startX, int startY, int endRow, int endCol, int pathSum, int &shortestPath, int **&ans);
-void History();
-void Leaderboard();
-void monitor(int row, int col, int **map);
-void monitor(int row, int col, int **path, int **map);
 int **PlateMaker(int row, int col);
 void PathMaker(int row, int col, int sum, int min, int max, int **&plate);
 void PathMakerHard(int row, int col, int len, int min, int max, int **&plate);
-void SolveMaze();
-void ShowPath(int row, int col, int **&map, int **&maze);
-void PlateDeleter(int row, int **&plate);
 void Blocker(int Bmin, int Bmax, int row, int col, int **&maze);
+void ShowPath(int row, int col, int **&map, int **&maze);
+void PlaygroundSection();
 void ColorizeAndMonitor(int row, int col, int **map, int Pos_x, int Pos_y, int pathSum, vector<int> vis_i, vector<int> vis_j);
+void SolveMazeSection();
+void SolveMaze();
+bool bruteForce(int **maze, int rows, int cols, int startX, int startY, int endRow, int endCol, int pathSum, int &shortestPath, int **&ans);
+void monitor(int row, int col, int **path, int **map);
+void History();
+void Leaderboard();
+void PlateDeleter(int row, int **&plate);
+void monitor(int row, int col, int **map);
 
 int main()
 {
@@ -158,6 +158,16 @@ void CreateMapEasy()
 
     PathMaker(row, col, 0, -3, 3, map);
 
+    int **path = PlateMaker(row, col);
+    for (int i = 0; i < row; i++)
+    {
+        for (int j = 0; j < col; j++)
+        {
+            path[i][j] = map [i][j];
+        }
+        
+    }
+
     Blocker(2, 5, row, col, map);
 
     ofstream file("Maps/" + mapname + ".txt");
@@ -172,8 +182,9 @@ void CreateMapEasy()
         file << "\n";
     }
 
-    monitor(row, col, map);
+    monitor(row, col, path, map);
     PlateDeleter(row, map);
+    PlateDeleter(row, path);
 }
 
 void CreateMapHard()
@@ -336,7 +347,7 @@ void PlaygroundSection()
                 if (I - 1 >= 0 && map[I - 1][J] != 0)
                 {
                     I -= 1;
-                    if (map[I][J]!=map[row-1][col-1])
+                    if (map[I][J] != map[row - 1][col - 1])
                         Sum += map[I][J];
                     vis_i.push_back(I);
                     vis_j.push_back(J);
@@ -348,7 +359,7 @@ void PlaygroundSection()
                 if (I + 1 < row && map[I + 1][J] != 0)
                 {
                     I += 1;
-                    if (map[I][J]!=map[row-1][col-1])
+                    if (map[I][J] != map[row - 1][col - 1])
                         Sum += map[I][J];
                     vis_i.push_back(I);
                     vis_j.push_back(J);
@@ -360,7 +371,7 @@ void PlaygroundSection()
                 if (J - 1 >= 0 && map[I][J - 1] != 0)
                 {
                     J -= 1;
-                    if (map[I][J]!=map[row-1][col-1])
+                    if (map[I][J] != map[row - 1][col - 1])
                         Sum += map[I][J];
                     vis_i.push_back(I);
                     vis_j.push_back(J);
@@ -372,7 +383,7 @@ void PlaygroundSection()
                 if (J + 1 < col && map[I][J + 1] != 0)
                 {
                     J += 1;
-                    if (map[I][J]!=map[row-1][col-1])
+                    if (map[I][J] != map[row - 1][col - 1])
                         Sum += map[I][J];
                     vis_i.push_back(I);
                     vis_j.push_back(J);
