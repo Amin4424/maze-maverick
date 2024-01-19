@@ -9,7 +9,9 @@
 #include <windows.h>
 #include <algorithm>
 #include <string>
+#include <chrono>
 #include <filesystem>
+#include <sstream>
 
 #define RESET "\033[0m"
 #define RED "\033[31m"
@@ -307,6 +309,10 @@ void PlaygroundSection()
                 }
             }
         }
+        system("cls");
+        string username;
+        cout << "Enter a username please:" << endl;
+        cin >> username;
         for (int i = 0; i < row; i++)
         {
             for (int j = 0; j < col; j++)
@@ -317,83 +323,244 @@ void PlaygroundSection()
                 }
             }
         }
+        int CheckIfVisited[row][col];
+        for (int i = 0; i < row; i++)
+        {
+            for (int j = 0; j < col; j++)
+            {
+                CheckIfVisited[i][j] = map[i][j];
+            }
+        }
         file.close();
+        bool validmove1 = false, validmove2 = false, validmove3 = false, validmove4 = false;
+        bool win = false, lose = false;
         int I = 0, J = 0, Sum = 0;
         vector<int> vis_i;
         vector<int> vis_j;
         vis_i.push_back(I);
         vis_j.push_back(J);
         Sum += map[I][J];
+        CheckIfVisited[I][J] = 0;
         char direction;
         string input;
         getline(cin, input);
         system("cls");
+        using namespace std::chrono;
+        auto start = high_resolution_clock::now();
         ColorizeAndMonitor(row, col, map, I, J, Sum, vis_i, vis_j);
         while (1)
         {
+
             if (Sum == map[row - 1][col - 1] && I == row - 1 && J == col - 1)
             {
-                system("cls");
-                cout << MAGENTA << "Congratulations.You won!";
-                Sleep(2000);
-                system("cls");
-                return;
+                win = true;
+                break;
+            }
+            if (I == row - 1 && J == col - 1 && Sum != map[row - 1][col - 1] || (validmove1 && validmove2 && validmove3 & validmove4))
+            {
+                lose = true;
+                break;
             }
             direction = _getch();
             switch (direction)
             {
             case 'w':
                 system("cls");
-                if (I - 1 >= 0 && map[I - 1][J] != 0)
+                if (I - 1 >= 0 && map[I - 1][J] != 0 && CheckIfVisited[I - 1][J] != 0)
                 {
+                    validmove1 = false;
                     I -= 1;
+                    CheckIfVisited[I][J] = 0;
                     if (map[I][J] != map[row - 1][col - 1])
                         Sum += map[I][J];
                     vis_i.push_back(I);
                     vis_j.push_back(J);
                 }
+                else
+                    validmove1 = true;
                 ColorizeAndMonitor(row, col, map, I, J, Sum, vis_i, vis_j);
                 continue;
             case 's':
                 system("cls");
-                if (I + 1 < row && map[I + 1][J] != 0)
+                if (I + 1 < row && map[I + 1][J] != 0 && CheckIfVisited[I + 1][J] != 0)
                 {
+                    validmove2 = false;
                     I += 1;
+                    CheckIfVisited[I][J] = 0;
                     if (map[I][J] != map[row - 1][col - 1])
                         Sum += map[I][J];
                     vis_i.push_back(I);
                     vis_j.push_back(J);
                 }
+                else
+                    validmove2 = true;
                 ColorizeAndMonitor(row, col, map, I, J, Sum, vis_i, vis_j);
                 continue;
             case 'a':
                 system("cls");
-                if (J - 1 >= 0 && map[I][J - 1] != 0)
+                if (J - 1 >= 0 && map[I][J - 1] != 0 && CheckIfVisited[I][J - 1] != 0)
                 {
+                    validmove3 = false;
                     J -= 1;
+                    CheckIfVisited[I][J] = 0;
                     if (map[I][J] != map[row - 1][col - 1])
                         Sum += map[I][J];
                     vis_i.push_back(I);
                     vis_j.push_back(J);
                 }
+                else
+                    validmove3 = true;
                 ColorizeAndMonitor(row, col, map, I, J, Sum, vis_i, vis_j);
                 continue;
             case 'd':
                 system("cls");
-                if (J + 1 < col && map[I][J + 1] != 0)
+                if (J + 1 < col && map[I][J + 1] != 0 && CheckIfVisited[I][J + 1] != 0)
                 {
+                    validmove4 = false;
                     J += 1;
+                    CheckIfVisited[I][J] = 0;
                     if (map[I][J] != map[row - 1][col - 1])
                         Sum += map[I][J];
                     vis_i.push_back(I);
                     vis_j.push_back(J);
                 }
+                else
+                    validmove4 = true;
                 ColorizeAndMonitor(row, col, map, I, J, Sum, vis_i, vis_j);
                 continue;
             case 'q':
                 system("cls");
                 return;
+            default:
+                system("cls");
+                cout << RED << "Please press a valid key" << RESET << endl;
+                Sleep(1000);
+                system("cls");
+                ColorizeAndMonitor(row, col, map, I, J, Sum, vis_i, vis_j);
+                continue;
             }
+        }
+        auto end = high_resolution_clock::now();
+        auto duration = duration_cast<seconds>(end - start);
+        if (win)
+        {
+            string LastWinDay, LastWinMonth, LastWinDate, LastWinTime, LastWinYear;
+            bool FindLastWin = true;
+            int TotalGames = 0, WonGames = 0, AllDurationSpent = 0;
+            auto currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+            std::string timeString = std::ctime(&currentTime);
+            ifstream inFile("SaveUserData/UserData.txt");
+            vector<string> existingData;
+            string Line;
+            while (getline(inFile, Line))
+            {
+                existingData.push_back(Line);
+            }
+            inFile.close();
+            ofstream outFile("SaveUserData/UserData.txt");
+
+            outFile << username << " \t Won \t " << duration.count() << "\t" << timeString << endl;
+            for (const auto &data : existingData)
+            {
+                outFile << data << "\n";
+            }
+            outFile.close();
+            ifstream Data("SaveUserData/UserData.txt");
+            string line;
+            while (getline(Data, line))
+            {
+                stringstream ss(line);
+                string name, action, timeduration, day, month, date, time, year;
+                ss >> name >> action >> timeduration >> day >> month >> date >> time >> year;
+                if (name == username)
+                    TotalGames++;
+                if (name == username && action == "Won")
+                    WonGames++;
+                if (name == username)
+                    AllDurationSpent += stoi(timeduration);
+                if (name == username && FindLastWin && action == "Won" && LastWinDay != "null")
+                {
+                    LastWinDay = day;
+                    LastWinMonth = month;
+                    LastWinDate = date;
+                    LastWinTime = time;
+                    LastWinYear = year;
+                    FindLastWin = false;
+                }
+            }
+            Data.close();
+            system("cls");
+            cout << MAGENTA << "Congratulations " << username << ".You won!" << RESET << endl;
+            cout << "You've played " << TotalGames << " Games" << endl;
+            cout << "You've won " << WonGames << " Games" << endl;
+            cout << "You've spent " << AllDurationSpent << " seconds" << endl;
+            cout << "Your last won game was at " << LastWinYear << " / " << LastWinMonth << " / " << LastWinDay << "   " << LastWinTime << endl;
+            Sleep(10000);
+            system("cls");
+            return;
+        }
+        if (lose)
+        {
+            string LastWinDay, LastWinMonth, LastWinDate, LastWinTime, LastWinYear;
+            bool FindLastWin = true;
+            int TotalGames = 0, WonGames = 0, AllDurationSpent = 0;
+            system("cls");
+            ifstream inFile("SaveUserData/UserData.txt");
+            vector<string> existingData;
+            string Line;
+            while (getline(inFile, Line))
+            {
+                existingData.push_back(Line);
+            }
+            inFile.close();
+            ofstream outFile("SaveUserData/UserData.txt");
+
+            outFile << username << " \t Lost \t " << duration.count() << "\tnull"
+                    << "\tnull"
+                    << "\tnull"
+                    << "\tnull"
+                    << "\tnull" << endl;
+            for (const auto &data : existingData)
+            {
+                outFile << data << "\n";
+            }
+            outFile.close();
+            ifstream Data("SaveUserData/UserData.txt");
+            string line;
+            while (getline(Data, line))
+            {
+                stringstream ss(line);
+                string name, action, timeduration, day, month, date, time, year;
+                ss >> name >> action >> timeduration >> day >> month >> date >> time >> year;
+                if (name == username)
+                    TotalGames++;
+                if (name == username && action == "Won")
+                    WonGames++;
+                if (name == username)
+                    AllDurationSpent += stoi(timeduration);
+                if (name == username && FindLastWin && action == "Won" && LastWinDay != "")
+                {
+                    LastWinDay = day;
+                    LastWinMonth = month;
+                    LastWinDate = date;
+                    LastWinTime = time;
+                    LastWinYear = year;
+                    FindLastWin = false;
+                }
+            }
+            Data.close();
+            system("cls");
+            cout << MAGENTA << "Sorry dear " << username << ".You lost!" << RESET << endl;
+            cout << "You've played " << TotalGames << " Games" << endl;
+            cout << "You've won " << WonGames << " Games" << endl;
+            cout << "You've spent " << AllDurationSpent << " seconds" << endl;
+            if (LastWinDay != "")
+                cout << "Your last won game was at " << LastWinYear << " / " << LastWinMonth << " / " << LastWinDay << "   " << LastWinTime << endl;
+            else
+                cout << "You haven't won any game";
+            Sleep(10000);
+            system("cls");
+            return;
         }
         for (int i = 0; i < row; ++i)
             delete[] map[i];
