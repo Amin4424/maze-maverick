@@ -37,7 +37,7 @@ void PlaygroundSection();
 void ColorizeAndMonitor(int row, int col, int **map, int Pos_x, int Pos_y, int pathSum, vector<int> vis_i, vector<int> vis_j);
 void SolveMazeSection();
 void SolveMaze();
-bool bruteForce(int **maze, int rows, int cols, int startX, int startY, int endRow, int endCol, int pathSum, int &shortestPath, int **&ans);
+bool bruteForce(int **maze, int rows, int cols, int startX, int startY, int endRow, int endCol, int pathSum, int pathlenght, int lenghtOfPath, int &shortestPath, int **&ans);
 void monitor(int row, int col, int **path, int **map);
 void History();
 void Leaderboard();
@@ -252,8 +252,21 @@ void CreateMapHard()
         }
         file << "\n";
     }
-
-    monitor(row, col, map);
+    int **ans = PlateMaker(row, col);
+    int **maze_keeper = PlateMaker(row, col);
+    int startX = 0, startY = 0;
+    int endRow = row - 1, endCol = col - 1;
+    int pathSum = 0, pathlenght = 0;
+    int shortestPath = INT_MAX;
+    for (int i = 0; i < row; ++i)
+    {
+        for (int j = 0; j < col; ++j)
+        {
+            maze_keeper[i][j] = map[i][j];
+        }
+    }
+    bruteForce(map, row, col, startX, startY, endRow, endCol, pathSum, pathlenght, len, shortestPath, ans);
+    ShowPath(row, col, maze_keeper, ans);
     // PlateDeleter(row, map);
 }
 
@@ -871,7 +884,7 @@ void SolveMaze()
 
     int startX = 0, startY = 0;
     int endRow = row - 1, endCol = col - 1;
-    int pathSum = 0;
+    int pathSum = 0, pathlenght = 0;
     int shortestPath = INT_MAX;
     int **maze_keeper = PlateMaker(row, col);
     for (int i = 0; i < row; ++i)
@@ -882,7 +895,7 @@ void SolveMaze()
         }
     }
 
-    if (bruteForce(map, row, col, startX, startY, endRow, endCol, pathSum, shortestPath, ans))
+    if (bruteForce(map, row, col, startX, startY, endRow, endCol, pathSum, pathlenght, 0, shortestPath, ans))
     {
         ShowPath(row, col, maze_keeper, ans);
     }
@@ -916,7 +929,7 @@ void ShowPath(int row, int col, int **&map, int **&ans)
     // PlateDeleter(row, path);
 }
 
-bool bruteForce(int **maze, int rows, int cols, int startX, int startY, int endRow, int endCol, int pathSum, int &shortestPath, int **&ans)
+bool bruteForce(int **maze, int rows, int cols, int startX, int startY, int endRow, int endCol, int pathSum, int pathlenght, int lenghtOfPath, int &shortestPath, int **&ans)
 {
     int **new_maze = PlateMaker(rows, cols);
     for (int i = 0; i < rows; ++i)
@@ -939,9 +952,11 @@ bool bruteForce(int **maze, int rows, int cols, int startX, int startY, int endR
     {
         if (pathSum == maze[endRow][endCol])
         {
-            if (pathSum < shortestPath)
+            if (lenghtOfPath == 0)
             {
-                shortestPath = pathSum;
+            if (pathlenght < shortestPath)
+            {
+                shortestPath = pathlenght;
                 for (int i = 0; i < rows; i++)
                 {
                     for (int j = 0; j < cols; j++)
@@ -951,6 +966,18 @@ bool bruteForce(int **maze, int rows, int cols, int startX, int startY, int endR
                 }
             }
             return true;
+            }
+            else if (pathlenght == lenghtOfPath)
+            {
+                for (int i = 0; i < rows; i++)
+                {
+                    for (int j = 0; j < cols; j++)
+                    {
+                        ans[i][j] = maze[i][j];
+                    }
+                }
+            return true;
+            }
         }
         else
         {
@@ -961,13 +988,14 @@ bool bruteForce(int **maze, int rows, int cols, int startX, int startY, int endR
         }
     }
 
+    pathlenght++;
     pathSum += maze[startX][startY];
     new_maze[startX][startY] = 0;
 
-    if (bruteForce(new_maze, rows, cols, startX + 1, startY, endRow, endCol, pathSum, shortestPath, ans) ||
-        bruteForce(new_maze, rows, cols, startX - 1, startY, endRow, endCol, pathSum, shortestPath, ans) ||
-        bruteForce(new_maze, rows, cols, startX, startY + 1, endRow, endCol, pathSum, shortestPath, ans) ||
-        bruteForce(new_maze, rows, cols, startX, startY - 1, endRow, endCol, pathSum, shortestPath, ans))
+    if (bruteForce(new_maze, rows, cols, startX + 1, startY, endRow, endCol, pathSum, pathlenght, lenghtOfPath, shortestPath, ans) ||
+        bruteForce(new_maze, rows, cols, startX - 1, startY, endRow, endCol, pathSum, pathlenght, lenghtOfPath, shortestPath, ans) ||
+        bruteForce(new_maze, rows, cols, startX, startY + 1, endRow, endCol, pathSum, pathlenght, lenghtOfPath, shortestPath, ans) ||
+        bruteForce(new_maze, rows, cols, startX, startY - 1, endRow, endCol, pathSum, pathlenght, lenghtOfPath, shortestPath, ans))
     {
         return true;
     }
