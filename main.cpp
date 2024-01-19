@@ -10,8 +10,7 @@
 #include <algorithm>
 #include <string>
 #include <filesystem>
-using namespace std;
-namespace fs = filesystem;
+
 #define RESET "\033[0m"
 #define RED "\033[31m"
 #define GREEN "\033[32m"
@@ -19,26 +18,26 @@ namespace fs = filesystem;
 #define BLUE "\033[34m"
 #define CYAN "\033[0;36m"
 #define MAGENTA "\033[0;35m"
-void CreateMap();
+
+using namespace std;
+namespace fs = filesystem;
+
+void StartProgram();
+void CreateMapSection();
 void CreateMapEasy();
 void CreateMapHard();
-void coutmap(int row, int col, int **map);
-void CreateMapHard();
 void PlaygroundSection();
-void SolveMaze();
+void SolveMazeSection();
+bool bruteForce(int **maze, int rows, int cols, int startX, int startY, int endRow, int endCol, int pathSum, int &shortestPath, int **&ans);
 void History();
 void Leaderboard();
 void monitor(int row, int col, int **map);
 void monitor(int row, int col, int **path, int **map);
-void StartProgram();
 int **PlateMaker(int row, int col);
 void PathMaker(int row, int col, int sum, int min, int max, int **&plate);
-void PathMaker2(int row, int col, int len, int min, int max, int **&plate);
+void PathMakerHard(int row, int col, int len, int min, int max, int **&plate);
 void SolveMaze();
-void SolveMaze_1();
 void ShowPath(int row, int col, int **&map, int **&maze);
-bool solveMaze(int **maze, int rows, int cols, int startX, int startY, int endRow, int endCol, int pathSum, int &shortestPath, int **&ans);
-void SolveMaze(int row, int col, int **&map, int **&ans);
 void PlateDeleter(int row, int **&plate);
 void Blocker(int Bmin, int Bmax, int row, int col, int **&maze);
 void ColorizeAndMonitor(int row, int col, int **map, int Pos_x, int Pos_y, int pathSum, vector<int> vis_i, vector<int> vis_j);
@@ -67,7 +66,7 @@ void StartProgram()
         {
         case '1':
             system("cls");
-            CreateMap();
+            CreateMapSection();
             break;
 
         case '2':
@@ -77,7 +76,7 @@ void StartProgram()
 
         case '3':
             system("cls");
-            SolveMaze();
+            SolveMazeSection();
             break;
 
         case '4':
@@ -103,7 +102,7 @@ void StartProgram()
     }
 }
 
-void CreateMap()
+void CreateMapSection()
 {
     char input = 0;
     while (input != '3')
@@ -226,7 +225,7 @@ void CreateMapHard()
     cin >> mapname;
 
     int **map = PlateMaker(row, col);
-    PathMaker2(row, col, len, min, max, map);
+    PathMakerHard(row, col, len, min, max, map);
     Blocker(minB, maxB, row, col, map);
 
     ofstream file("Maps/" + mapname + ".txt");
@@ -243,18 +242,6 @@ void CreateMapHard()
 
     monitor(row, col, map);
     // PlateDeleter(row, map);
-}
-
-void coutmap(int row, int col, int **map)
-{
-    for (int i = 0; i < row; i++)
-    {
-        for (int j = 0; j < col; j++)
-        {
-            cout << *(*(map + i) + j) << ' ';
-        }
-        cout << endl;
-    }
 }
 
 void PlaygroundSection()
@@ -421,7 +408,6 @@ void Leaderboard()
 {
 }
 
-// Map Section
 void monitor(int row, int col, int **map)
 {
     int MaxLength = to_string(map[0][0]).size();
@@ -577,7 +563,7 @@ void PathMaker(int row, int col, int sum, int min, int max, int **&plate)
     plate[i_pos][j_pos] = sum;
 }
 
-void PathMaker2(int row, int col, int len, int min, int max, int **&map)
+void PathMakerHard(int row, int col, int len, int min, int max, int **&map)
 {
     // it works only on even_rowed maps for now
     int i_pos = 0, j_pos = 0, sum = 0, range, diff;
@@ -645,7 +631,7 @@ void PathMaker2(int row, int col, int len, int min, int max, int **&map)
     }
 }
 
-void SolveMaze()
+void SolveMazeSection()
 {
     char input = 0;
     while (input != '3')
@@ -658,7 +644,7 @@ void SolveMaze()
         {
         case '1':
             system("cls");
-            SolveMaze_1();
+            SolveMaze();
             break;
         case '2':
             system("cls");
@@ -672,7 +658,7 @@ void SolveMaze()
     }
 }
 
-void SolveMaze_1()
+void SolveMaze()
 {
     cout << "Please enter the name of txt file:\n(example: test.txt)\n";
     string path = "Maps";
@@ -705,8 +691,29 @@ void SolveMaze_1()
     file.close();
     int **ans = PlateMaker(row, col);
 
-    SolveMaze(row, col, map, ans);
-    PlateDeleter(row, ans);
+    int startX = 0, startY = 0;
+    int endRow = row - 1, endCol = col - 1;
+    int pathSum = 0;
+    int shortestPath = INT_MAX;
+    int **maze_keeper = PlateMaker(row, col);
+    for (int i = 0; i < row; ++i)
+    {
+        for (int j = 0; j < col; ++j)
+        {
+            maze_keeper[i][j] = map[i][j];
+        }
+    }
+
+    if (bruteForce(map, row, col, startX, startY, endRow, endCol, pathSum, shortestPath, ans))
+    {
+        ShowPath(row, col, maze_keeper, ans);
+    }
+    else
+    {
+        cout << "No path found" << endl;
+    }
+
+    PlateDeleter(row, map);
 }
 
 void ShowPath(int row, int col, int **&map, int **&ans)
@@ -731,33 +738,7 @@ void ShowPath(int row, int col, int **&map, int **&ans)
     // PlateDeleter(row, path);
 }
 
-void SolveMaze(int row, int col, int **&maze, int **&ans)
-{
-    int startX = 0, startY = 0;
-    int endRow = row - 1, endCol = col - 1;
-    int pathSum = 0;
-    int shortestPath = INT_MAX;
-    int **maze_keeper = PlateMaker(row, col);
-    for (int i = 0; i < row; ++i)
-    {
-        for (int j = 0; j < col; ++j)
-        {
-            maze_keeper[i][j] = maze[i][j];
-        }
-    }
-
-    if (solveMaze(maze, row, col, startX, startY, endRow, endCol, pathSum, shortestPath, ans))
-    {
-        ShowPath(row, col, maze_keeper, ans);
-    }
-    else
-    {
-        cout << "No path found" << endl;
-    }
-
-    PlateDeleter(row, maze);
-}
-bool solveMaze(int **maze, int rows, int cols, int startX, int startY, int endRow, int endCol, int pathSum, int &shortestPath, int **&ans)
+bool bruteForce(int **maze, int rows, int cols, int startX, int startY, int endRow, int endCol, int pathSum, int &shortestPath, int **&ans)
 {
     int **new_maze = PlateMaker(rows, cols);
     for (int i = 0; i < rows; ++i)
@@ -805,10 +786,10 @@ bool solveMaze(int **maze, int rows, int cols, int startX, int startY, int endRo
     pathSum += maze[startX][startY];
     new_maze[startX][startY] = 0;
 
-    if (solveMaze(new_maze, rows, cols, startX + 1, startY, endRow, endCol, pathSum, shortestPath, ans) ||
-        solveMaze(new_maze, rows, cols, startX - 1, startY, endRow, endCol, pathSum, shortestPath, ans) ||
-        solveMaze(new_maze, rows, cols, startX, startY + 1, endRow, endCol, pathSum, shortestPath, ans) ||
-        solveMaze(new_maze, rows, cols, startX, startY - 1, endRow, endCol, pathSum, shortestPath, ans))
+    if (bruteForce(new_maze, rows, cols, startX + 1, startY, endRow, endCol, pathSum, shortestPath, ans) ||
+        bruteForce(new_maze, rows, cols, startX - 1, startY, endRow, endCol, pathSum, shortestPath, ans) ||
+        bruteForce(new_maze, rows, cols, startX, startY + 1, endRow, endCol, pathSum, shortestPath, ans) ||
+        bruteForce(new_maze, rows, cols, startX, startY - 1, endRow, endCol, pathSum, shortestPath, ans))
     {
         return true;
     }
@@ -873,6 +854,7 @@ void Blocker(int Bmin, int Bmax, int row, int col, int **&maze)
         zeros.pop_back();
     }
 }
+
 void ColorizeAndMonitor(int row, int col, int **map, int Pos_x, int Pos_y, int pathSum, vector<int> vis_i, vector<int> vis_j)
 {
     int MaxLength = to_string(map[0][0]).size();
