@@ -222,9 +222,9 @@ void CreateMapHard()
     {
         cout << "Enter the lenght of path:\n";
         cin >> len;
-        if ((len < (row + col - 2)) || (len >= (row * col)) || ((len - (row + col - 2)) % 2 != 0) || ((row % 2 == 0) && (col % 2 == 0) && (len = row * col - 1)))
+        if ((len < (row + col - 2)) || (len >= (row * col)) || ((len - (row + col - 2)) % 2 != 0) || ((row % 2 == 0) && (col % 2 == 0) && (len == row * col - 1)))
             cout << "Invalid path!\n";
-    } while ((len < (row + col - 2)) || (len >= (row * col)) || ((len - (row + col - 2)) % 2 != 0) || ((row % 2 == 0) && (col % 2 == 0) && (len = row * col - 1)));
+    } while ((len < (row + col - 2)) || (len >= (row * col)) || ((len - (row + col - 2)) % 2 != 0) || ((row % 2 == 0) && (col % 2 == 0) && (len == row * col - 1)));
 
     cout << "Enter the minimum amount of each block:\n";
     cin >> min;
@@ -280,6 +280,7 @@ void CreateMapHard()
         }
     }
     bruteForce(map, row, col, startX, startY, endRow, endCol, pathSum, pathlenght, len, shortestPath, ans);
+    system("cls");
     ShowPath(row, col, maze_keeper, ans);
     // PlateDeleter(row, map);
 }
