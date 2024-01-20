@@ -12,6 +12,8 @@
 #include <chrono>
 #include <filesystem>
 #include <sstream>
+#include <set>
+#include <unordered_set>
 
 #define RESET "\033[0m"
 #define RED "\033[31m"
@@ -23,6 +25,19 @@
 
 using namespace std;
 namespace fs = filesystem;
+
+struct GameData
+{
+    string username;
+    string action;
+    int timeduration;
+    string day;
+    string month;
+    string date;
+    string time;
+    string year;
+    string nameofmap;
+};
 
 void StartProgram();
 void CreateMapSection();
@@ -40,7 +55,7 @@ void SolveMaze();
 bool bruteForce(int **maze, int rows, int cols, int startX, int startY, int endRow, int endCol, int pathSum, int pathlenght, int lenghtOfPath, int &shortestPath, int **&ans);
 void monitor(int row, int col, int **path, int **map);
 void History();
-void Leaderboard();
+void UserInfo();
 void PlateDeleter(int row, int **&plate);
 void monitor(int row, int col, int **map);
 
@@ -59,7 +74,7 @@ void StartProgram()
         cout << RED << "2. PlaygroundSection" << endl;
         cout << GREEN << "3. Solve a Maze" << endl;
         cout << YELLOW << "4. History" << endl;
-        cout << CYAN << "5. Leaderboard" << endl;
+        cout << CYAN << "5. User Info" << endl;
         cout << MAGENTA << "6. Exit" << endl;
         cout << RESET;
 
@@ -87,7 +102,7 @@ void StartProgram()
             break;
         case '5':
             system("cls");
-            Leaderboard();
+            UserInfo();
             break;
 
         case '6':
@@ -472,7 +487,7 @@ void PlaygroundSection()
             inFile.close();
             ofstream outFile("SaveUserData/UserData.txt");
 
-            outFile << username << " \t Won \t " << duration.count() << "\t" << timeString.substr(0,timeString.length()-2) << "\t" << name << endl;
+            outFile << username << " \t Won \t " << duration.count() << "\t" << timeString.substr(0, timeString.length() - 2) << "\t" << name << endl;
             for (const auto &data : existingData)
             {
                 outFile << data << "\n";
@@ -483,22 +498,21 @@ void PlaygroundSection()
             while (getline(Data, line))
             {
                 stringstream ss(line);
-                string nameofplayer, action, timeduration, day, month, date, time, year, nameofmap;
-                ss >> nameofplayer >> action >> timeduration >> day >> month >> date >> time >> year >> nameofmap;
-                if (nameofplayer == username)
+                GameData game;
+                ss >> game.username >> game.action >> game.timeduration >> game.day >> game.month >> game.date >> game.time >> game.year >> game.nameofmap;
+                if (username == game.username)
                     TotalGames++;
-                if (nameofplayer == username && action == "Won")
+                if (username == game.username && game.action == "Won")
                     WonGames++;
-                if (nameofplayer == username)
-                    AllDurationSpent += stoi(timeduration);
-                if (nameofplayer == username && FindLastWin && action == "Won" && LastWinDay != "null")
+                if (username == game.username)
+                    AllDurationSpent += (game.timeduration);
+                if (username == game.username && game.action == "Won" && LastWinDay != "null")
                 {
-                    LastWinDay = day;
-                    LastWinMonth = month;
-                    LastWinDate = date;
-                    LastWinTime = time;
-                    LastWinYear = year;
-                    FindLastWin = false;
+                    LastWinDay = game.day;
+                    LastWinMonth = game.month;
+                    LastWinDate = game.date;
+                    LastWinTime = game.time;
+                    LastWinYear = "2024";
                 }
             }
             Data.close();
@@ -507,7 +521,7 @@ void PlaygroundSection()
             cout << "You've played " << TotalGames << " Games" << endl;
             cout << "You've won " << WonGames << " Games" << endl;
             cout << "You've spent " << AllDurationSpent << " seconds" << endl;
-            cout << "Your last won game was at " << LastWinYear << " / " << LastWinMonth << " / " << LastWinDay << "   " << LastWinTime << endl;
+            cout << "Your last won game was at " << LastWinYear << " / " << LastWinMonth << " / " << LastWinDate << "   " << LastWinTime << endl;
             Sleep(10000);
             system("cls");
             return;
@@ -543,21 +557,21 @@ void PlaygroundSection()
             while (getline(Data, line))
             {
                 stringstream ss(line);
-                string nameofplayer, action, timeduration, day, month, date, time, year, nameofmap;
-                ss >> nameofplayer >> action >> timeduration >> day >> month >> date >> time >> year >> nameofmap;
-                if (nameofplayer == username)
+                GameData game;
+                ss >> game.username >> game.action >> game.timeduration >> game.day >> game.month >> game.date >> game.time >> game.year >> game.nameofmap;
+                if (username == game.username)
                     TotalGames++;
-                if (nameofplayer == username && action == "Won")
+                if (username == game.username && game.action == "Won")
                     WonGames++;
-                if (nameofplayer == username)
-                    AllDurationSpent += stoi(timeduration);
-                if (nameofplayer == username && action == "Won" && LastWinDay == "")
+                if (username == game.username)
+                    AllDurationSpent += game.timeduration;
+                if (username == game.username && game.action == "Won" && LastWinDay == "")
                 {
-                    LastWinDay = day;
-                    LastWinMonth = month;
-                    LastWinDate = date;
-                    LastWinTime = time;
-                    LastWinYear = year;
+                    LastWinDay = game.day;
+                    LastWinMonth = game.month;
+                    LastWinDate = game.date;
+                    LastWinTime = game.time;
+                    LastWinYear = "2024";
                 }
             }
             Data.close();
@@ -567,8 +581,8 @@ void PlaygroundSection()
             cout << "You've won " << WonGames << " Games" << endl;
             cout << "You've spent " << AllDurationSpent << " seconds" << endl;
             if (LastWinTime != "")
-        
-                cout << "Your last won game was at " << LastWinYear << " / " << LastWinMonth << " / " << LastWinDay << "   " << LastWinTime << endl;
+
+                cout << "Your last won game was at " << LastWinYear << " / " << LastWinMonth << " / " << LastWinDate << "   " << LastWinTime << endl;
             else
                 cout << "You haven't won any game";
             Sleep(10000);
@@ -595,8 +609,93 @@ void History()
 {
 }
 
-void Leaderboard()
+void UserInfo()
 {
+    cout<<"Type a username to get the info\n";
+    ifstream file("SaveUserData/UserData.txt");
+
+    if (file.is_open())
+    {
+        string line;
+        unordered_set<string> uniqueNames;
+
+        while (getline(file, line))
+        {
+            string playerName = line.substr(0, line.find_first_of(" \t"));
+            uniqueNames.insert(playerName);
+        }
+
+        file.close();
+        for (const auto &name : uniqueNames)
+        {
+            cout << name << endl;
+        }
+    }
+    else
+    {
+        cerr << "Unable to open file" << endl;
+    }
+    string username;
+    cin >> username;
+
+    ifstream data("SaveUserData/UserData.txt");
+    if (!data.is_open())
+    {
+        cout << "Failed to open file" << endl;
+        return;
+    }
+
+    set<string> uniqueNames;
+    vector<GameData> userGames;
+
+    string line;
+    while (getline(data, line))
+    {
+        stringstream ss(line);
+        GameData game;
+        ss >> game.username >> game.action >> game.timeduration >> game.day >> game.month >> game.date >> game.time >> game.year >> game.nameofmap;
+        uniqueNames.insert(game.username);
+        if (game.username == username)
+        {
+            userGames.push_back(game);
+        }
+    }
+    data.close();
+
+    int TotalGames = 0, WonGames = 0, AllDurationSpent = 0;
+    string LastWinDate, LastWinDay, LastWinMonth, LastWinTime, LastWinYear;
+
+    for (const auto &game : userGames)
+    {
+        TotalGames++;
+        if (game.action == "Won")
+        {
+            WonGames++;
+            if (LastWinYear.empty())
+            {
+                LastWinDay = game.day;
+                LastWinMonth = game.month;
+                LastWinDate = game.date;
+                LastWinTime = game.time;
+                LastWinYear = game.year;
+            }
+        }
+        AllDurationSpent += game.timeduration;
+    }
+    system("cls");
+    cout << "Total games of player " << username << " is " << TotalGames << endl;
+    cout << "Total win games of player " << username << " is " << WonGames << endl;
+
+    if (LastWinTime != "")
+        cout << username << " last won game was at " << LastWinYear << " / " << LastWinMonth << " / " << LastWinDate << "   " << LastWinTime << endl;
+
+    else
+        cout << username << " haven't won any game\n";
+
+    cout << "Total spend time on game is " << AllDurationSpent << " seconds" << endl;
+    Sleep(15000);
+    system("cls");
+    return;
 }
 
 void monitor(int row, int col, int **map)
