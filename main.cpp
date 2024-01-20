@@ -198,6 +198,7 @@ void CreateMapEasy()
         file << "\n";
     }
 
+    system("cls");
     monitor(row, col, path, map);
     PlateDeleter(row, map);
     PlateDeleter(row, path);
