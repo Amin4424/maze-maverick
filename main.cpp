@@ -98,7 +98,7 @@ void StartProgram()
 
         case '4':
             system("cls");
-            // History();
+            History();
             break;
         case '5':
             system("cls");
@@ -180,9 +180,8 @@ void CreateMapEasy()
     {
         for (int j = 0; j < col; j++)
         {
-            path[i][j] = map [i][j];
+            path[i][j] = map[i][j];
         }
-        
     }
 
     Blocker(2, 5, row, col, map);
@@ -287,10 +286,11 @@ void CreateMapHard()
 
 void PlaygroundSection()
 {
-    cout << "Choose your option: \n";
-    cout << "1. Choosing a map from pre-made maps \n";
-    cout << "2. Reading a map\n";
-    cout << "3. Quit\n";
+    cout << MAGENTA << "Choose your option: \n";
+    cout << CYAN << "1. Choosing a map from pre-made maps \n";
+    cout << GREEN << "2. Reading a map\n";
+    cout << RED << "3. Quit\n"
+         << RESET;
     char option;
     option = _getch();
 
@@ -300,17 +300,24 @@ void PlaygroundSection()
     {
         system("cls");
         string path = "Maps";
-        cout << "Choose the map:" << endl;
+        cout << MAGENTA << "Choose the map:" << endl
+             << RESET;
+        cout << "-----------\n";
         for (const auto &entry : fs::directory_iterator(path))
         {
-            cout << entry.path().filename() << endl;
+            cout << YELLOW << entry.path().filename() << endl
+                 << RESET;
         }
+        cout << "-----------\n";
         string name;
         cin >> name;
         ifstream file("Maps/" + name);
         if (!file.is_open())
         {
-            cout << "Error: Unable to open file" << endl;
+            system("cls");
+            cout << MAGENTA << "Error: Unable to Find file" << RESET << endl;
+            Sleep(2000);
+            system("cls");
             break;
         }
 
@@ -339,7 +346,8 @@ void PlaygroundSection()
         }
         system("cls");
         string username;
-        cout << "Enter a username please:" << endl;
+        cout << MAGENTA << "Enter a username please:" << endl
+             << RESET;
         cin >> username;
         for (int i = 0; i < row; i++)
         {
@@ -487,7 +495,7 @@ void PlaygroundSection()
             inFile.close();
             ofstream outFile("SaveUserData/UserData.txt");
 
-            outFile << username << " \t Won \t " << duration.count() << "\t" << timeString.substr(0, timeString.length() - 2) << "\t" << name << endl;
+            outFile << username << " \t\t    Won       \t \t" << duration.count() << "\t\t" << timeString.substr(0, timeString.length() - 1) << "\t    " << name << endl;
             for (const auto &data : existingData)
             {
                 outFile << data << "\n";
@@ -512,16 +520,16 @@ void PlaygroundSection()
                     LastWinMonth = game.month;
                     LastWinDate = game.date;
                     LastWinTime = game.time;
-                    LastWinYear = "2024";
+                    LastWinYear = game.year;
                 }
             }
             Data.close();
             system("cls");
             cout << MAGENTA << "Congratulations " << username << ".You won!" << RESET << endl;
-            cout << "You've played " << TotalGames << " Games" << endl;
-            cout << "You've won " << WonGames << " Games" << endl;
-            cout << "You've spent " << AllDurationSpent << " seconds" << endl;
-            cout << "Your last won game was at " << LastWinYear << " / " << LastWinMonth << " / " << LastWinDate << "   " << LastWinTime << endl;
+            cout << GREEN << "You've played " << CYAN << TotalGames << GREEN << " Games" << endl;
+            cout << "You've won " << CYAN << WonGames << GREEN << " Games" << endl;
+            cout << "You've spent " << CYAN << AllDurationSpent << GREEN << " seconds" << endl;
+            cout << "Your last won game was at " << CYAN << LastWinYear << RESET << " / " << CYAN << LastWinMonth << RESET << " / " << CYAN << LastWinDate << RESET << "   " << CYAN << LastWinTime << RESET << endl;
             Sleep(10000);
             system("cls");
             return;
@@ -541,12 +549,12 @@ void PlaygroundSection()
             inFile.close();
             ofstream outFile("SaveUserData/UserData.txt");
 
-            outFile << username << " \t Lost \t " << duration.count() << "\tnull"
-                    << "\tnull"
-                    << "\tnull"
-                    << "\tnull"
-                    << "\tnull"
-                    << "\t" << name << endl;
+            outFile << username << " \t\t    Lost       \t \t" << duration.count() << "\t\tnull"
+                    << " null"
+                    << " null"
+                    << " null"
+                    << " null"
+                    << "\t    " << name << endl;
             for (const auto &data : existingData)
             {
                 outFile << data << "\n";
@@ -577,14 +585,14 @@ void PlaygroundSection()
             Data.close();
             system("cls");
             cout << MAGENTA << "Sorry dear " << username << ".You lost!" << RESET << endl;
-            cout << "You've played " << TotalGames << " Games" << endl;
-            cout << "You've won " << WonGames << " Games" << endl;
-            cout << "You've spent " << AllDurationSpent << " seconds" << endl;
+            cout << GREEN << "You've played " << CYAN << TotalGames << GREEN << " Games" << endl;
+            cout << "You've won " << CYAN << WonGames << GREEN << " Games" << endl;
+            cout << "You've spent " << CYAN << AllDurationSpent << GREEN << " seconds" << endl;
             if (LastWinTime != "")
 
-                cout << "Your last won game was at " << LastWinYear << " / " << LastWinMonth << " / " << LastWinDate << "   " << LastWinTime << endl;
+                cout << "Your last won game was at " << CYAN << LastWinYear << RESET << " / " << CYAN << LastWinMonth << RESET << " / " << CYAN << LastWinDate << RESET << "   " << CYAN << LastWinTime << endl << RESET;
             else
-                cout << "You haven't won any game";
+                cout <<GREEN<< "You haven't won any game"<<RESET;
             Sleep(10000);
             system("cls");
             return;
@@ -607,41 +615,91 @@ void PlaygroundSection()
 
 void History()
 {
+    ifstream file("SaveUserData/UserData.txt");
+    system("cls");
+    cout << YELLOW << "Playername\t"
+         << "  Game status\t"
+         << "    spend time\t"
+         << "                 Date\t"
+         << "\t          Name of the map\n"
+         << RESET;
+    cout << "--------------------------------------------------------------------------------------------------------\n"
+         << BLUE;
+    if (file.is_open())
+    {
+        int linesToRead = 10;
+        string line;
+
+        while (linesToRead > 0 && getline(file, line))
+        {
+            cout << line << endl;
+            linesToRead--;
+        }
+
+        file.close();
+    }
+    else
+    {
+        cerr << "Unable to open file";
+    }
+    string userInput;
+    cout << RESET << "--------------------------------------------------------------------------------------------------------\n";
+    cout << MAGENTA << "\nPress Enter to go back to menu " << RESET;
+    getline(cin, userInput);
+    system("cls");
+    return;
 }
 
 void UserInfo()
 {
-    cout<<"Type a username to get the info\n";
+    cout << MAGENTA << "Type a username to get the info\n"
+         << RESET;
     ifstream file("SaveUserData/UserData.txt");
-
+    vector<string> users;
+    int CounterForUsers = 0, CounterForChecking = 0;
     if (file.is_open())
     {
         string line;
         unordered_set<string> uniqueNames;
-
         while (getline(file, line))
         {
             string playerName = line.substr(0, line.find_first_of(" \t"));
             uniqueNames.insert(playerName);
+            users.push_back(playerName);
         }
 
         file.close();
         for (const auto &name : uniqueNames)
         {
-            cout << name << endl;
+            CounterForUsers++;
+            cout << YELLOW << name << RESET << endl;
         }
     }
     else
     {
-        cerr << "Unable to open file" << endl;
+        cerr << MAGENTA << "Unable to open file" << RESET << endl;
     }
     string username;
     cin >> username;
-
+    for (int i = 0; i < CounterForUsers; i++)
+    {
+        if (username != users[i])
+        {
+            CounterForChecking++;
+        }
+    }
+    if (CounterForChecking == CounterForUsers)
+    {
+        system("cls");
+        cout << MAGENTA << "Invalid username ." << RESET;
+        Sleep(3000);
+        system("cls");
+        return;
+    }
     ifstream data("SaveUserData/UserData.txt");
     if (!data.is_open())
     {
-        cout << "Failed to open file" << endl;
+        cout << MAGENTA << "Failed to open file" << RESET << endl;
         return;
     }
 
@@ -683,16 +741,17 @@ void UserInfo()
         AllDurationSpent += game.timeduration;
     }
     system("cls");
-    cout << "Total games of player " << username << " is " << TotalGames << endl;
-    cout << "Total win games of player " << username << " is " << WonGames << endl;
+    cout << GREEN << "Total games of player " << YELLOW << username << GREEN << " is " << CYAN << TotalGames << endl;
+    cout << GREEN << "Total win games of player " << YELLOW << username << GREEN << " is " << CYAN << WonGames << endl;
 
     if (LastWinTime != "")
-        cout << username << " last won game was at " << LastWinYear << " / " << LastWinMonth << " / " << LastWinDate << "   " << LastWinTime << endl;
+        cout << YELLOW << username << GREEN << " last won game was at " << CYAN << LastWinYear << RESET << " / " << CYAN << LastWinMonth << RESET << " / " << CYAN << LastWinDate << RESET << "   " << CYAN << LastWinTime << endl;
 
     else
-        cout << username << " haven't won any game\n";
+        cout << YELLOW << username << GREEN << " haven't won any game\n";
 
-    cout << "Total spend time on game is " << AllDurationSpent << " seconds" << endl;
+    cout << GREEN << "Total spend time on game is " << CYAN << AllDurationSpent << GREEN << " seconds" << endl
+         << RESET;
     Sleep(15000);
     system("cls");
     return;
@@ -1053,18 +1112,18 @@ bool bruteForce(int **maze, int rows, int cols, int startX, int startY, int endR
         {
             if (lenghtOfPath == 0)
             {
-            if (pathlenght < shortestPath)
-            {
-                shortestPath = pathlenght;
-                for (int i = 0; i < rows; i++)
+                if (pathlenght < shortestPath)
                 {
-                    for (int j = 0; j < cols; j++)
+                    shortestPath = pathlenght;
+                    for (int i = 0; i < rows; i++)
                     {
-                        ans[i][j] = maze[i][j];
+                        for (int j = 0; j < cols; j++)
+                        {
+                            ans[i][j] = maze[i][j];
+                        }
                     }
                 }
-            }
-            return true;
+                return true;
             }
             else if (pathlenght == lenghtOfPath)
             {
@@ -1075,7 +1134,7 @@ bool bruteForce(int **maze, int rows, int cols, int startX, int startY, int endR
                         ans[i][j] = maze[i][j];
                     }
                 }
-            return true;
+                return true;
             }
         }
         else
