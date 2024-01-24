@@ -310,24 +310,6 @@ void CreateMapHard()
 
     PlateDeleter(row, map);
     PlateDeleter(row, ans);
-
-    // int **ans = PlateMaker(row, col);
-    // int **maze_keeper = PlateMaker(row, col);
-    // int startX = 0, startY = 0;
-    // int endRow = row - 1, endCol = col - 1;
-    // int pathSum = 0, pathlenght = 0;
-    // int shortestPath = INT_MAX;
-    // for (int i = 0; i < row; ++i)
-    // {
-    //     for (int j = 0; j < col; ++j)
-    //     {
-    //         maze_keeper[i][j] = map[i][j];
-    //     }
-    // }
-    // bruteForce(map, row, col, startX, startY, endRow, endCol, pathSum, pathlenght, len, shortestPath, ans);
-    // system("cls");
-    // ShowPath(row, col, maze_keeper, ans);
-    // // PlateDeleter(row, map);
 }
 
 void PlaygroundSection()
