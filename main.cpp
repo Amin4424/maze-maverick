@@ -247,12 +247,8 @@ void CreateMapHard()
         {
             cout << "Invalid path!\n";
         }
-        else if ((row % 2 == 0)&&((col % 2 == 0))&&(len >= row * col - row))
-        {
-            cout << "Sorry! I'm unable to make map with that long path yet!\nPlease enter a shorter path!\n";
-        }
-        
-    } while ((len < (row + col - 2)) || (len >= (row * col)) || ((len - (row + col - 2)) % 2 != 0) || ((row % 2 == 0) && (col % 2 == 0) && (len == row * col - 1)) || ((row % 2 == 0)&&((col % 2 == 0))&&(len >= row * col - row)));
+
+    } while ((len < (row + col - 2)) || (len >= (row * col)) || ((len - (row + col - 2)) % 2 != 0) || ((row % 2 == 0) && (col % 2 == 0) && (len == row * col - 1)));
 
     cout << "Enter the minimum amount of each block:\n";
     cin >> min;
@@ -713,68 +709,277 @@ void PathMaker(int row, int col, int sum, int min, int max, int **&plate)
 
 void PathMakerHard(int row, int col, int len, int min, int max, int **&map)
 {
-    int i_pos = 0, j_pos = 0, sum = 0, range, diff;
+    int i_pos = 0, j_pos = 0, sum = 0, range;
     range = max - min + 1;
-    while (1)
+    if (row % 2 == 1)
     {
-        if (i_pos % 2 == 0)
+        while (1)
         {
-            for (int i = 0; i < col; i++)
+            if (i_pos % 2 == 0)
             {
-                int rnd = rand() % range + min;
-                while (rnd == 0)
+                for (int i = 0; i < col; i++)
                 {
-                    rnd = rand() % range + min;
-                }
-                map[i_pos][j_pos] = rnd;
-                sum += rnd;
-                j_pos++;
-                len--;
-                if ((j_pos == col - 1) && (i_pos == row - 1))
-                {
-                    map[i_pos][j_pos] = sum;
-                    return;
-                }
-            }
-            j_pos--;
-            i_pos++;
-        }
-
-        if (i_pos % 2 == 1)
-        {
-            for (int i = 0; i < col; i++)
-            {
-                int rnd = rand() % range - diff;
-                while (rnd == 0)
-                {
-                    rnd = rand() % range - diff;
-                }
-                map[i_pos][j_pos] = rnd;
-                sum += rnd;
-                j_pos--;
-                len--;
-                if (((row - i_pos - 1) + (col - j_pos - 1) - 2) == len)
-                {
-                    j_pos++;
-                    i_pos++;
-                    int temprow = row - i_pos;
-                    int tempcol = col - j_pos;
-                    int **tempmap = PlateMaker(temprow, tempcol);
-                    PathMaker(temprow, tempcol, sum, min, max, tempmap);
-                    for (int x = 0; x < temprow; x++)
+                    int rnd = rand() % range + min;
+                    while (rnd == 0)
                     {
-                        for (int y = 0; y < tempcol; y++)
+                        rnd = rand() % range + min;
+                    }
+                    map[i_pos][j_pos] = rnd;
+                    sum += rnd;
+                    j_pos++;
+                    len--;
+                    if ((j_pos == col - 1) && (i_pos == row - 1))
+                    {
+                        map[i_pos][j_pos] = sum;
+                        return;
+                    }
+                }
+                j_pos--;
+                i_pos++;
+            }
+
+            if (i_pos % 2 == 1)
+            {
+                for (int i = 0; i < col; i++)
+                {
+                    int rnd = rand() % range + min;
+                    while (rnd == 0)
+                    {
+                        rnd = rand() % range + min;
+                    }
+                    map[i_pos][j_pos] = rnd;
+                    sum += rnd;
+                    j_pos--;
+                    len--;
+                    if (((row - i_pos - 1) + (col - j_pos - 1) - 2) == len)
+                    {
+                        j_pos++;
+                        i_pos++;
+                        int temprow = row - i_pos;
+                        int tempcol = col - j_pos;
+                        int **tempmap = PlateMaker(temprow, tempcol);
+                        PathMaker(temprow, tempcol, sum, min, max, tempmap);
+                        for (int x = 0; x < temprow; x++)
                         {
-                            map[x + i_pos][y + j_pos] = tempmap[x][y];
+                            for (int y = 0; y < tempcol; y++)
+                            {
+                                map[x + i_pos][y + j_pos] = tempmap[x][y];
+                            }
+                        }
+                        // PlateDeleter(row, tempmap);
+                        return;
+                    }
+                }
+                j_pos++;
+                i_pos++;
+            }
+        }
+    }
+    else if (col % 2 == 1)
+    {
+        while (1)
+        {
+            if (j_pos % 2 == 0)
+            {
+                for (int i = 0; i < row; i++)
+                {
+                    int rnd = rand() % range + min;
+                    while (rnd == 0)
+                    {
+                        rnd = rand() % range + min;
+                    }
+                    map[i_pos][j_pos] = rnd;
+                    sum += rnd;
+                    i_pos++;
+                    len--;
+                    if ((i_pos == row - 1) && (j_pos == col - 1))
+                    {
+                        map[i_pos][j_pos] = sum;
+                        return;
+                    }
+                }
+                i_pos--;
+                j_pos++;
+            }
+
+            if (j_pos % 2 == 1)
+            {
+                for (int i = 0; i < row; i++)
+                {
+                    int rnd = rand() % range + min;
+                    while (rnd == 0)
+                    {
+                        rnd = rand() % range + min;
+                    }
+                    map[i_pos][j_pos] = rnd;
+                    sum += rnd;
+                    i_pos--;
+                    len--;
+                    if (((col - j_pos - 1) + (row - i_pos - 1) - 2) == len)
+                    {
+                        i_pos++;
+                        j_pos++;
+                        int tempcol = col - j_pos;
+                        int temprow = row - i_pos;
+                        int **tempmap = PlateMaker(temprow, tempcol);
+                        PathMaker(temprow, tempcol, sum, min, max, tempmap);
+                        for (int x = 0; x < temprow; x++)
+                        {
+                            for (int y = 0; y < tempcol; y++)
+                            {
+                                map[x + i_pos][y + j_pos] = tempmap[x][y];
+                            }
+                        }
+                        // PlateDeleter(row, tempmap);
+                        return;
+                    }
+                }
+                i_pos++;
+                j_pos++;
+            }
+        }
+    }
+    else if ((row % 2 == 0) && (col % 2 == 0))
+    {
+        while ((row - i_pos - 1) + (col - j_pos - 1) < len)
+        {
+            if ((i_pos % 2 == 0) && (i_pos != row - 2))
+            {
+                for (int i = 0; i < col; i++)
+                {
+                    int rnd = rand() % range + min;
+                    while (rnd == 0)
+                    {
+                        rnd = rand() % range + min;
+                    }
+                    map[i_pos][j_pos] = rnd;
+                    sum += rnd;
+                    j_pos++;
+                    len--;
+                }
+                j_pos--;
+                i_pos++;
+            }
+            else if (i_pos == row - 2)
+            {
+                while ((row - i_pos - 1) + (col - j_pos - 1) < len)
+                {
+                    // one block down
+                    int rnd = rand() % range + min;
+                    while (rnd == 0)
+                    {
+                        rnd = rand() % range + min;
+                    }
+                    map[i_pos][j_pos] = rnd;
+                    sum += rnd;
+                    i_pos++;
+                    len--;
+
+                    // one block right
+                    rnd = rand() % range + min;
+                    while (rnd == 0)
+                    {
+                        rnd = rand() % range + min;
+                    }
+                    map[i_pos][j_pos] = rnd;
+                    sum += rnd;
+                    j_pos++;
+                    len--;
+                    // check if it riched to the final block
+                    if (len == 0)
+                    {
+                        map[i_pos][j_pos] = sum;
+                        return;
+                    }
+
+                    // one block up
+                    rnd = rand() % range + min;
+                    while (rnd == 0)
+                    {
+                        rnd = rand() % range + min;
+                    }
+                    map[i_pos][j_pos] = rnd;
+                    sum += rnd;
+                    i_pos--;
+                    len--;
+
+                    // one block right
+                    rnd = rand() % range + min;
+                    while (rnd == 0)
+                    {
+                        rnd = rand() % range + min;
+                    }
+                    map[i_pos][j_pos] = rnd;
+                    sum += rnd;
+                    j_pos++;
+                    len--;
+                }
+                int temprow = row - i_pos;
+                int tempcol = col - j_pos;
+                int **tempmap = PlateMaker(temprow, tempcol);
+                PathMaker(temprow, tempcol, sum, min, max, tempmap);
+                for (int x = 0; x < temprow; x++)
+                {
+                    for (int y = 0; y < tempcol; y++)
+                    {
+                        map[x + i_pos][y + j_pos] = tempmap[x][y];
+                    }
+                }
+                // PlateDeleter(row, tempmap);
+                return;
+            }
+            else if (i_pos % 2 == 1)
+            {
+                if (i_pos != row - 2)
+                {
+                    for (int i = 0; i < col; i++)
+                    {
+                        int rnd = rand() % range + min;
+                        while (rnd == 0)
+                        {
+                            rnd = rand() % range + min;
+                        }
+                        map[i_pos][j_pos] = rnd;
+                        sum += rnd;
+                        j_pos--;
+                        len--;
+                        if (((row - i_pos - 1) + (col - j_pos - 1) - 2) == len)
+                        {
+                            j_pos++;
+                            i_pos++;
+                            int temprow = row - i_pos;
+                            int tempcol = col - j_pos;
+                            int **tempmap = PlateMaker(temprow, tempcol);
+                            PathMaker(temprow, tempcol, sum, min, max, tempmap);
+                            for (int x = 0; x < temprow; x++)
+                            {
+                                for (int y = 0; y < tempcol; y++)
+                                {
+                                    map[x + i_pos][y + j_pos] = tempmap[x][y];
+                                }
+                            }
+                            // PlateDeleter(row, tempmap);
+                            return;
                         }
                     }
-                    // PlateDeleter(row, tempmap);
-                    return;
+                    j_pos++;
+                    i_pos++;
                 }
             }
-            j_pos++;
-            i_pos++;
         }
+        int temprow = row - i_pos;
+        int tempcol = col - j_pos;
+        int **tempmap = PlateMaker(temprow, tempcol);
+        PathMaker(temprow, tempcol, sum, min, max, tempmap);
+        for (int x = 0; x < temprow; x++)
+        {
+            for (int y = 0; y < tempcol; y++)
+            {
+                map[x + i_pos][y + j_pos] = tempmap[x][y];
+            }
+        }
+        // PlateDeleter(row, tempmap);
+        return;
     }
 }
 
