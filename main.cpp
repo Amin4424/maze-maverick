@@ -23,7 +23,15 @@
 #define CYAN "\033[0;36m"
 #define MAGENTA "\033[0;35m"
 #define BLACK "\033[30m"
-
+#define WHITE "\033[37m"
+#define BackgroundBLACK "\033[40m"
+#define BackgroundRED "\033[41m"
+#define BackgroundGREEN "\033[42m"
+#define BackgroundYELLOW "\033[43m"
+#define BackgroundBLUE "\033[44m"
+#define BackgroundMAGENTA "\033[45m"
+#define BackgroundCYAN "\033[46m"
+#define BackgroundWHITE "\033[47m"
 using namespace std;
 namespace fs = filesystem;
 
@@ -78,7 +86,7 @@ void StartProgram()
         cout << GREEN << "3. Solve a Maze" << endl;
         cout << YELLOW << "4. History" << endl;
         cout << CYAN << "5. User Info" << endl;
-        cout << BLACK << "6. LeaderBoard" << endl;
+        cout << BackgroundBLACK << WHITE << "6. LeaderBoard" << endl;
         cout << MAGENTA << "7. Exit" << endl;
         cout << RESET;
 
@@ -316,16 +324,8 @@ void PlaygroundSection()
         {
         case '1':
         {
-            ifstream foldercheck("Maps/");
-            if (!foldercheck)
-            {
-                system("cls");
-                cerr << MAGENTA << "Unable to find the file" << RESET << endl;
-                Sleep(1000);
-                system("cls");
-                return;
-            }
-            else
+            fs::path folderPath = "Maps";
+            if (fs::is_directory(folderPath))
             {
                 system("cls");
                 string path = "Maps";
@@ -344,7 +344,14 @@ void PlaygroundSection()
                 locatedmaps += nameofmap;
                 Playground(locatedmaps);
             }
-            foldercheck.close();
+            else
+            {
+                system("cls");
+                cerr << MAGENTA << "Unable to find the file" << RESET << endl;
+                Sleep(1000);
+                system("cls");
+                return;
+            }
             break;
         }
         case '2':
@@ -769,7 +776,7 @@ void PathMakerHard(int row, int col, int len, int min, int max, int **&map)
 void SolveMazeSection()
 {
     char input = 0;
-    ifstream foldercheck("Maps/");
+
     while (input != '3')
     {
         cout << "1. Enter the name of map   (The file exists in Maps/ directory)\n";
@@ -778,21 +785,13 @@ void SolveMazeSection()
         string FileAddress;
         string name;
         string path = "Maps";
-
+        fs::path folderPath = "Maps";
         input = _getch();
         switch (input)
         {
         case '1':
 
-            if (!foldercheck)
-            {
-                system("cls");
-                cerr << MAGENTA << "Unable to find the file" << RESET << endl;
-                Sleep(1000);
-                system("cls");
-                return;
-            }
-            else
+            if (fs::is_directory(folderPath))
             {
                 system("cls");
                 cout << "Choose the map:\n";
@@ -805,7 +804,15 @@ void SolveMazeSection()
                 FileAddress += name;
                 SolveMaze(FileAddress);
             }
-            foldercheck.close();
+            else
+            {
+                system("cls");
+                cerr << MAGENTA << "Unable to find the file" << RESET << endl;
+                Sleep(1000);
+                system("cls");
+                return;
+            }
+
             break;
         case '2':
             system("cls");
