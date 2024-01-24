@@ -22,7 +22,16 @@
 #define BLUE "\033[34m"
 #define CYAN "\033[0;36m"
 #define MAGENTA "\033[0;35m"
-
+#define BLACK "\033[30m"
+#define WHITE "\033[37m"
+#define BackgroundBLACK "\033[40m"
+#define BackgroundRED "\033[41m"
+#define BackgroundGREEN "\033[42m"
+#define BackgroundYELLOW "\033[43m"
+#define BackgroundBLUE "\033[44m"
+#define BackgroundMAGENTA "\033[45m"
+#define BackgroundCYAN "\033[46m"
+#define BackgroundWHITE "\033[47m"
 using namespace std;
 namespace fs = filesystem;
 
@@ -49,13 +58,15 @@ void PathMakerHard(int row, int col, int len, int min, int max, int **&plate);
 void Blocker(int Bmin, int Bmax, int row, int col, int **&maze);
 void ShowPath(int row, int col, int **&map, int **&maze);
 void PlaygroundSection();
+void Playground(string mapname);
 void ColorizeAndMonitor(int row, int col, int **map, int Pos_x, int Pos_y, int pathSum, vector<int> vis_i, vector<int> vis_j);
 void SolveMazeSection();
-void SolveMaze();
+void SolveMaze(string address);
 bool bruteForce(int **maze, int rows, int cols, int startX, int startY, int endRow, int endCol, int pathSum, int pathlenght, int lenghtOfPath, int &shortestPath, int **&ans);
 void monitor(int row, int col, int **path, int **map);
 void History();
 void UserInfo();
+void LeaderBoard();
 void PlateDeleter(int row, int **&plate);
 void monitor(int row, int col, int **map);
 
@@ -75,7 +86,8 @@ void StartProgram()
         cout << GREEN << "3. Solve a Maze" << endl;
         cout << YELLOW << "4. History" << endl;
         cout << CYAN << "5. User Info" << endl;
-        cout << MAGENTA << "6. Exit" << endl;
+        cout << BackgroundBLACK << WHITE << "6. LeaderBoard" << endl;
+        cout << MAGENTA << "7. Exit" << endl;
         cout << RESET;
 
         char input = _getch();
@@ -104,8 +116,12 @@ void StartProgram()
             system("cls");
             UserInfo();
             break;
-
         case '6':
+            system("cls");
+            LeaderBoard();
+            break;
+
+        case '7':
             system("cls");
             cout << "Exiting the program...";
             exit(0);
@@ -113,7 +129,9 @@ void StartProgram()
 
         default:
             system("cls");
-            cout << "Please press a valid key" << endl;
+            cout << MAGENTA << "Please press a valid key" << RESET << endl;
+            Sleep(1500);
+            system("cls");
             break;
         }
     }
@@ -146,7 +164,9 @@ void CreateMapSection()
 
         default:
             system("cls");
-            cout << "Please press a valid key" << endl;
+            cout << MAGENTA << "Please press a valid key" << RESET << endl;
+            Sleep(1500);
+            system("cls");
             break;
         }
     }
@@ -312,331 +332,70 @@ void CreateMapHard()
 
 void PlaygroundSection()
 {
-    cout << MAGENTA << "Choose your option: \n";
-    cout << CYAN << "1. Choosing a map from pre-made maps \n";
-    cout << GREEN << "2. Reading a map\n";
-    cout << RED << "3. Quit\n"
-         << RESET;
-    char option;
-    option = _getch();
-
-    switch (option)
+    while (1)
     {
-    case '1':
-    {
-        system("cls");
-        string path = "Maps";
-        cout << MAGENTA << "Choose the map:" << endl
+        cout << MAGENTA << "Choose your option: \n";
+        cout << CYAN << "1. Choosing a map from pre-made maps \n";
+        cout << GREEN << "2. Reading a map\n";
+        cout << RED << "3. Quit\n"
              << RESET;
-        cout << "-----------\n";
-        for (const auto &entry : fs::directory_iterator(path))
+        char option;
+        string address;
+        string nameofmap;
+        option = _getch();
+
+        switch (option)
         {
-            cout << YELLOW << entry.path().filename() << endl
-                 << RESET;
+        case '1':
+        {
+            fs::path folderPath = "Maps";
+            if (fs::is_directory(folderPath))
+            {
+                system("cls");
+                string path = "Maps";
+                cout << MAGENTA << "Choose the map:" << endl
+                     << RESET;
+                cout << "-----------\n";
+                for (const auto &entry : fs::directory_iterator(path))
+                {
+                    cout << YELLOW << entry.path().filename() << RESET << endl
+                         << RESET;
+                }
+                cout << "-----------\n";
+                string locatedmaps = "Maps/";
+
+                cin >> nameofmap;
+                locatedmaps += nameofmap;
+                Playground(locatedmaps);
+            }
+            else
+            {
+                system("cls");
+                cerr << MAGENTA << "Unable to find the file" << RESET << endl;
+                Sleep(1000);
+                system("cls");
+                return;
+            }
+            break;
         }
-        cout << "-----------\n";
-        string name;
-        cin >> name;
-        ifstream file("Maps/" + name);
-        if (!file.is_open())
-        {
+        case '2':
             system("cls");
-            cout << MAGENTA << "Error: Unable to Find file" << RESET << endl;
-            Sleep(2000);
+            cout << "Please type a valid address to open the file : \n";
+            getline(cin, address);
+            Playground(address);
+            break;
+        case '3':
+
+            system("cls");
+            return;
+
+        default:
+            system("cls");
+            cout << MAGENTA << "Please press a valid key" << RESET << endl;
+            Sleep(1500);
             system("cls");
             break;
         }
-
-        int row, col;
-        file >> row >> col;
-        int MaxLengthOfIndex = 0;
-        int **map = new int *[row];
-        for (int i = 0; i < row; ++i)
-        {
-            map[i] = new int[col];
-            for (int j = 0; j < col; ++j)
-            {
-
-                if (!(file >> map[i][j]))
-                {
-                    system("cls");
-                    cout << "Error: Unable to read from file" << endl;
-                    for (int k = 0; k < i; ++k)
-                        delete[] map[k];
-
-                    delete[] map;
-                    file.close();
-                    return;
-                }
-            }
-        }
-        system("cls");
-        string username;
-        cout << MAGENTA << "Enter a username please:" << endl
-             << RESET;
-        cin >> username;
-        for (int i = 0; i < row; i++)
-        {
-            for (int j = 0; j < col; j++)
-            {
-                if (to_string(map[i][j]).size() > MaxLengthOfIndex)
-                {
-                    MaxLengthOfIndex = to_string(map[i][j]).size();
-                }
-            }
-        }
-        int CheckIfVisited[row][col];
-        for (int i = 0; i < row; i++)
-        {
-            for (int j = 0; j < col; j++)
-            {
-                CheckIfVisited[i][j] = map[i][j];
-            }
-        }
-        file.close();
-        bool validmove1 = false, validmove2 = false, validmove3 = false, validmove4 = false;
-        bool win = false, lose = false;
-        int I = 0, J = 0, Sum = 0;
-        vector<int> vis_i;
-        vector<int> vis_j;
-        vis_i.push_back(I);
-        vis_j.push_back(J);
-        Sum += map[I][J];
-        CheckIfVisited[I][J] = 0;
-        char direction;
-        string input;
-        getline(cin, input);
-        system("cls");
-        using namespace std::chrono;
-        auto start = high_resolution_clock::now();
-        ColorizeAndMonitor(row, col, map, I, J, Sum, vis_i, vis_j);
-        while (1)
-        {
-
-            if (Sum == map[row - 1][col - 1] && I == row - 1 && J == col - 1)
-            {
-                win = true;
-                break;
-            }
-            if (I == row - 1 && J == col - 1 && Sum != map[row - 1][col - 1] || (validmove1 && validmove2 && validmove3 & validmove4))
-            {
-                lose = true;
-                break;
-            }
-            direction = _getch();
-            switch (direction)
-            {
-            case 'w':
-                system("cls");
-                if (I - 1 >= 0 && map[I - 1][J] != 0 && CheckIfVisited[I - 1][J] != 0)
-                {
-                    validmove1 = false;
-                    I -= 1;
-                    CheckIfVisited[I][J] = 0;
-                    if (map[I][J] != map[row - 1][col - 1])
-                        Sum += map[I][J];
-                    vis_i.push_back(I);
-                    vis_j.push_back(J);
-                }
-                else
-                    validmove1 = true;
-                ColorizeAndMonitor(row, col, map, I, J, Sum, vis_i, vis_j);
-                continue;
-            case 's':
-                system("cls");
-                if (I + 1 < row && map[I + 1][J] != 0 && CheckIfVisited[I + 1][J] != 0)
-                {
-                    validmove2 = false;
-                    I += 1;
-                    CheckIfVisited[I][J] = 0;
-                    if (map[I][J] != map[row - 1][col - 1])
-                        Sum += map[I][J];
-                    vis_i.push_back(I);
-                    vis_j.push_back(J);
-                }
-                else
-                    validmove2 = true;
-                ColorizeAndMonitor(row, col, map, I, J, Sum, vis_i, vis_j);
-                continue;
-            case 'a':
-                system("cls");
-                if (J - 1 >= 0 && map[I][J - 1] != 0 && CheckIfVisited[I][J - 1] != 0)
-                {
-                    validmove3 = false;
-                    J -= 1;
-                    CheckIfVisited[I][J] = 0;
-                    if (map[I][J] != map[row - 1][col - 1])
-                        Sum += map[I][J];
-                    vis_i.push_back(I);
-                    vis_j.push_back(J);
-                }
-                else
-                    validmove3 = true;
-                ColorizeAndMonitor(row, col, map, I, J, Sum, vis_i, vis_j);
-                continue;
-            case 'd':
-                system("cls");
-                if (J + 1 < col && map[I][J + 1] != 0 && CheckIfVisited[I][J + 1] != 0)
-                {
-                    validmove4 = false;
-                    J += 1;
-                    CheckIfVisited[I][J] = 0;
-                    if (map[I][J] != map[row - 1][col - 1])
-                        Sum += map[I][J];
-                    vis_i.push_back(I);
-                    vis_j.push_back(J);
-                }
-                else
-                    validmove4 = true;
-                ColorizeAndMonitor(row, col, map, I, J, Sum, vis_i, vis_j);
-                continue;
-            case 'q':
-                system("cls");
-                return;
-            default:
-                system("cls");
-                cout << RED << "Please press a valid key" << RESET << endl;
-                Sleep(1000);
-                system("cls");
-                ColorizeAndMonitor(row, col, map, I, J, Sum, vis_i, vis_j);
-                continue;
-            }
-        }
-        auto end = high_resolution_clock::now();
-        auto duration = duration_cast<seconds>(end - start);
-        if (win)
-        {
-            string LastWinDay, LastWinMonth, LastWinDate, LastWinTime, LastWinYear;
-            bool FindLastWin = true;
-            int TotalGames = 0, WonGames = 0, AllDurationSpent = 0;
-            auto currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-            std::string timeString = std::ctime(&currentTime);
-            ifstream inFile("SaveUserData/UserData.txt");
-            vector<string> existingData;
-            string Line;
-            while (getline(inFile, Line))
-            {
-                existingData.push_back(Line);
-            }
-            inFile.close();
-            ofstream outFile("SaveUserData/UserData.txt");
-
-            outFile << username << " \t\t    Won       \t \t" << duration.count() << "\t\t" << timeString.substr(0, timeString.length() - 1) << "\t    " << name << endl;
-            for (const auto &data : existingData)
-            {
-                outFile << data << "\n";
-            }
-            outFile.close();
-            ifstream Data("SaveUserData/UserData.txt");
-            string line;
-            while (getline(Data, line))
-            {
-                stringstream ss(line);
-                GameData game;
-                ss >> game.username >> game.action >> game.timeduration >> game.day >> game.month >> game.date >> game.time >> game.year >> game.nameofmap;
-                if (username == game.username)
-                    TotalGames++;
-                if (username == game.username && game.action == "Won")
-                    WonGames++;
-                if (username == game.username)
-                    AllDurationSpent += (game.timeduration);
-                if (username == game.username && game.action == "Won" && LastWinDay != "null")
-                {
-                    LastWinDay = game.day;
-                    LastWinMonth = game.month;
-                    LastWinDate = game.date;
-                    LastWinTime = game.time;
-                    LastWinYear = game.year;
-                }
-            }
-            Data.close();
-            system("cls");
-            cout << MAGENTA << "Congratulations " << username << ".You won!" << RESET << endl;
-            cout << GREEN << "You've played " << CYAN << TotalGames << GREEN << " Games" << endl;
-            cout << "You've won " << CYAN << WonGames << GREEN << " Games" << endl;
-            cout << "You've spent " << CYAN << AllDurationSpent << GREEN << " seconds" << endl;
-            cout << "Your last won game was at " << CYAN << LastWinYear << RESET << " / " << CYAN << LastWinMonth << RESET << " / " << CYAN << LastWinDate << RESET << "   " << CYAN << LastWinTime << RESET << endl;
-            Sleep(10000);
-            system("cls");
-            return;
-        }
-        if (lose)
-        {
-            string LastWinDay, LastWinMonth, LastWinDate, LastWinTime, LastWinYear;
-            int TotalGames = 0, WonGames = 0, AllDurationSpent = 0;
-            system("cls");
-            ifstream inFile("SaveUserData/UserData.txt");
-            vector<string> existingData;
-            string Line;
-            while (getline(inFile, Line))
-            {
-                existingData.push_back(Line);
-            }
-            inFile.close();
-            ofstream outFile("SaveUserData/UserData.txt");
-
-            outFile << username << " \t\t    Lost       \t \t" << duration.count() << "\t\tnull"
-                    << " null"
-                    << " null"
-                    << " null"
-                    << " null"
-                    << "\t    " << name << endl;
-            for (const auto &data : existingData)
-            {
-                outFile << data << "\n";
-            }
-            outFile.close();
-            ifstream Data("SaveUserData/UserData.txt");
-            string line;
-            while (getline(Data, line))
-            {
-                stringstream ss(line);
-                GameData game;
-                ss >> game.username >> game.action >> game.timeduration >> game.day >> game.month >> game.date >> game.time >> game.year >> game.nameofmap;
-                if (username == game.username)
-                    TotalGames++;
-                if (username == game.username && game.action == "Won")
-                    WonGames++;
-                if (username == game.username)
-                    AllDurationSpent += game.timeduration;
-                if (username == game.username && game.action == "Won" && LastWinDay == "")
-                {
-                    LastWinDay = game.day;
-                    LastWinMonth = game.month;
-                    LastWinDate = game.date;
-                    LastWinTime = game.time;
-                    LastWinYear = "2024";
-                }
-            }
-            Data.close();
-            system("cls");
-            cout << MAGENTA << "Sorry dear " << username << ".You lost!" << RESET << endl;
-            cout << GREEN << "You've played " << CYAN << TotalGames << GREEN << " Games" << endl;
-            cout << "You've won " << CYAN << WonGames << GREEN << " Games" << endl;
-            cout << "You've spent " << CYAN << AllDurationSpent << GREEN << " seconds" << endl;
-            if (LastWinTime != "")
-
-                cout << "Your last won game was at " << CYAN << LastWinYear << RESET << " / " << CYAN << LastWinMonth << RESET << " / " << CYAN << LastWinDate << RESET << "   " << CYAN << LastWinTime << endl
-                     << RESET;
-            else
-                cout << GREEN << "You haven't won any game" << RESET;
-            Sleep(10000);
-            system("cls");
-            return;
-        }
-        for (int i = 0; i < row; ++i)
-            delete[] map[i];
-        delete[] map;
-        break;
-    }
-    case '3':
-        system("cls");
-        return;
-
-    default:
-        system("cls");
-        cout << "Please press a valid key" << endl;
-        break;
     }
 }
 
@@ -644,16 +403,16 @@ void History()
 {
     ifstream file("SaveUserData/UserData.txt");
     system("cls");
-    cout << YELLOW << "Playername\t"
-         << "  Game status\t"
-         << "    spend time\t"
-         << "                 Date\t"
-         << "\t          Name of the map\n"
-         << RESET;
-    cout << "--------------------------------------------------------------------------------------------------------\n"
-         << BLUE;
     if (file.is_open())
     {
+        cout << YELLOW << "Playername\t"
+             << "  Game status\t"
+             << "    spend time\t"
+             << "                 Date\t"
+             << "\t          Name of the map\n"
+             << RESET;
+        cout << "--------------------------------------------------------------------------------------------------------\n"
+             << BLUE;
         int linesToRead = 10;
         string line;
 
@@ -667,7 +426,11 @@ void History()
     }
     else
     {
-        cerr << "Unable to open file";
+        system("cls");
+        cerr << MAGENTA << "Unable to open file" << RESET;
+        Sleep(1000);
+        system("cls");
+        return;
     }
     string userInput;
     cout << RESET << "--------------------------------------------------------------------------------------------------------\n";
@@ -679,13 +442,14 @@ void History()
 
 void UserInfo()
 {
-    cout << MAGENTA << "Type a username to get the info\n"
-         << RESET;
     ifstream file("SaveUserData/UserData.txt");
     vector<string> users;
     int CounterForUsers = 0, CounterForChecking = 0;
     if (file.is_open())
     {
+        cout << MAGENTA << "Type a username to get the info\n"
+             << RESET;
+        cout << "------------" << endl;
         string line;
         unordered_set<string> uniqueNames;
         while (getline(file, line))
@@ -693,18 +457,22 @@ void UserInfo()
             string playerName = line.substr(0, line.find_first_of(" \t"));
             uniqueNames.insert(playerName);
             users.push_back(playerName);
+            CounterForUsers++;
         }
 
         file.close();
         for (const auto &name : uniqueNames)
         {
-            CounterForUsers++;
             cout << YELLOW << name << RESET << endl;
         }
+        cout << "------------" << endl;
     }
     else
     {
         cerr << MAGENTA << "Unable to open file" << RESET << endl;
+        Sleep(1000);
+        system("cls");
+        return;
     }
     string username;
     cin >> username;
@@ -782,6 +550,28 @@ void UserInfo()
     Sleep(15000);
     system("cls");
     return;
+}
+
+void LeaderBoard()
+{
+    ifstream file("SaveUserData/UserData.txt");
+    if (file.is_open())
+    {
+        string line;
+
+        while (getline(file, line))
+        {
+            stringstream ss(line);
+            GameData game;
+            ss >> game.username >> game.action >> game.timeduration >> game.day >> game.month >> game.date >> game.time >> game.year >> game.nameofmap;
+        }
+    }
+
+    else
+    {
+        cerr << MAGENTA << "Unable to open file" << RESET << endl;
+    }
+    file.close();
 }
 
 void monitor(int row, int col, int **map)
@@ -1009,47 +799,75 @@ void PathMakerHard(int row, int col, int len, int min, int max, int **&map)
 void SolveMazeSection()
 {
     char input = 0;
+
     while (input != '3')
     {
-        cout << "1. Enter the name of map\n   (The file exists in Maps/ directory)\n"
-             << endl;
-        cout << "2. Quit" << endl;
+        cout << "1. Enter the name of map   (The file exists in Maps/ directory)\n";
+        cout << "2. Give an address to solve the maze\n";
+        cout << "3. Quit" << endl;
+        string FileAddress;
+        string name;
+        string path = "Maps";
+        fs::path folderPath = "Maps";
         input = _getch();
         switch (input)
         {
         case '1':
-            system("cls");
-            SolveMaze();
+
+            if (fs::is_directory(folderPath))
+            {
+                system("cls");
+                cout << "Choose the map:\n";
+                for (const auto &entry : fs::directory_iterator(path))
+                {
+                    cout << YELLOW << entry.path().filename() << RESET << endl;
+                }
+                FileAddress = "Maps/";
+                cin >> name;
+                FileAddress += name;
+                SolveMaze(FileAddress);
+            }
+            else
+            {
+                system("cls");
+                cerr << MAGENTA << "Unable to find the file" << RESET << endl;
+                Sleep(1000);
+                system("cls");
+                return;
+            }
+
             break;
         case '2':
+            system("cls");
+            cout << "Please Give a valid address.\n";
+            getline(cin, FileAddress);
+            SolveMaze(FileAddress);
+            break;
+        case '3':
             system("cls");
             return;
 
         default:
             system("cls");
-            cout << "Please press a valid key" << endl;
+            cout << "Please press a valid key\n"
+                 << endl;
             break;
         }
     }
 }
 
-void SolveMaze()
+void SolveMaze(string address)
 {
-    cout << "Please enter the name of txt file:\n(example: test.txt)\n";
-    string path = "Maps";
-    for (const auto &entry : fs::directory_iterator(path))
-    {
-        cout << entry.path().filename() << endl;
-    }
-    string name;
-    cin >> name;
     system("cls");
-    ifstream file("Maps/" + name);
+    ifstream file(address);
     while (!file)
     {
-        cout << "Something went wrong!\nPlease try again:\n";
-        cin >> name;
-        file.open("Maps/" + name);
+        system("cls");
+        cout << MAGENTA << "Something went wrong!\nPlease try again:\n"
+             << RESET;
+        Sleep(1000);
+        system("cls");
+        return;
     }
     int row, col;
     file >> row >> col;
@@ -1324,4 +1142,339 @@ void ColorizeAndMonitor(int row, int col, int **map, int Pos_x, int Pos_y, int p
     cout << "+" << endl;
     cout << CYAN << "current pathsum is :   " << GREEN << pathSum << endl;
     cout << MAGENTA << "Press 'q' to exit from this section" << RESET;
+}
+
+void Playground(string address)
+{
+    ifstream file(address);
+    if (!file.is_open())
+    {
+        system("cls");
+        cout << MAGENTA << "Error: Unable to Find file" << RESET << endl;
+        Sleep(2000);
+        system("cls");
+        return;
+    }
+
+    int BackSlashCounter = 0;
+    int TCounter = 0;
+    int Temp1, Temp2;
+    for (int i = 0; i < address.size(); i++)
+    {
+        if (address[i] == '/')
+            BackSlashCounter++;
+        if (address[i] == 't')
+            TCounter++;
+    }
+    for (int i = 0; i < address.size(); i++)
+    {
+        if (address[i] == '/')
+        {
+            BackSlashCounter--;
+            if (BackSlashCounter == 0)
+            {
+                Temp1 = i;
+            }
+        }
+        if (address[i] == 't')
+        {
+            TCounter--;
+            if (TCounter == 0)
+            {
+                Temp2 = i;
+            }
+        }
+    }
+    string nameofmap;
+    for (int i = Temp1 + 1; i <= Temp2; i++)
+    {
+        nameofmap += address[i];
+    }
+    Sleep(5000);
+    int row, col;
+    file >> row >> col;
+    int MaxLengthOfIndex = 0;
+    int **map = new int *[row];
+    for (int i = 0; i < row; ++i)
+    {
+        map[i] = new int[col];
+        for (int j = 0; j < col; ++j)
+        {
+
+            if (!(file >> map[i][j]))
+            {
+                system("cls");
+                cout << "Error: Unable to read from file" << endl;
+                for (int k = 0; k < i; ++k)
+                    delete[] map[k];
+
+                delete[] map;
+                file.close();
+                return;
+            }
+        }
+    }
+    system("cls");
+    string username;
+    cout << MAGENTA << "Enter a username please:" << endl
+         << RESET;
+    cin >> username;
+    for (int i = 0; i < row; i++)
+    {
+        for (int j = 0; j < col; j++)
+        {
+            if (to_string(map[i][j]).size() > MaxLengthOfIndex)
+            {
+                MaxLengthOfIndex = to_string(map[i][j]).size();
+            }
+        }
+    }
+    int **CheckIfVisited = new int *[row];
+    for (int i = 0; i < row; i++)
+    {
+        CheckIfVisited[i] = new int[col];
+    }
+
+    for (int i = 0; i < row; i++)
+    {
+        for (int j = 0; j < col; j++)
+        {
+            CheckIfVisited[i][j] = map[i][j];
+        }
+    }
+    file.close();
+    bool validmove1 = false, validmove2 = false, validmove3 = false, validmove4 = false;
+    bool win = false, lose = false;
+    int I = 0, J = 0, Sum = 0;
+    vector<int> vis_i;
+    vector<int> vis_j;
+    vis_i.push_back(I);
+    vis_j.push_back(J);
+    Sum += map[I][J];
+    CheckIfVisited[I][J] = 0;
+    char direction;
+    string input;
+    getline(cin, input);
+    system("cls");
+    using namespace std::chrono;
+    auto start = high_resolution_clock::now();
+    ColorizeAndMonitor(row, col, map, I, J, Sum, vis_i, vis_j);
+    while (1)
+    {
+
+        if (Sum == map[row - 1][col - 1] && I == row - 1 && J == col - 1)
+        {
+            win = true;
+            break;
+        }
+        if (I == row - 1 && J == col - 1 && Sum != map[row - 1][col - 1] || (validmove1 && validmove2 && validmove3 & validmove4) || (CheckIfVisited[row - 2][col - 1] == 0 && CheckIfVisited[row - 1][col - 2] == 0 && (I + 1 != row - 1 && J + 1 != col - 1 && I - 1 != row - 1 && J - 1 != col - 1)))
+        {
+            lose = true;
+            break;
+        }
+        direction = _getch();
+        switch (direction)
+        {
+        case 'w':
+            system("cls");
+            if (I - 1 >= 0 && map[I - 1][J] != 0 && CheckIfVisited[I - 1][J] != 0)
+            {
+                validmove1 = false;
+                I -= 1;
+                CheckIfVisited[I][J] = 0;
+                if (I != row - 1 || J != col - 1)
+                    Sum += map[I][J];
+                vis_i.push_back(I);
+                vis_j.push_back(J);
+            }
+            else
+                validmove1 = true;
+            ColorizeAndMonitor(row, col, map, I, J, Sum, vis_i, vis_j);
+            continue;
+        case 's':
+            system("cls");
+            if (I + 1 < row && map[I + 1][J] != 0 && CheckIfVisited[I + 1][J] != 0)
+            {
+                validmove2 = false;
+                I += 1;
+                CheckIfVisited[I][J] = 0;
+                if (I != row - 1 || J != col - 1)
+                    Sum += map[I][J];
+                vis_i.push_back(I);
+                vis_j.push_back(J);
+            }
+            else
+                validmove2 = true;
+            ColorizeAndMonitor(row, col, map, I, J, Sum, vis_i, vis_j);
+            continue;
+        case 'a':
+            system("cls");
+            if (J - 1 >= 0 && map[I][J - 1] != 0 && CheckIfVisited[I][J - 1] != 0)
+            {
+                validmove3 = false;
+                J -= 1;
+                CheckIfVisited[I][J] = 0;
+                if (I != row - 1 || J != col - 1)
+                    Sum += map[I][J];
+                vis_i.push_back(I);
+                vis_j.push_back(J);
+            }
+            else
+                validmove3 = true;
+            ColorizeAndMonitor(row, col, map, I, J, Sum, vis_i, vis_j);
+            continue;
+        case 'd':
+            system("cls");
+            if (J + 1 < col && map[I][J + 1] != 0 && CheckIfVisited[I][J + 1] != 0)
+            {
+                validmove4 = false;
+                J += 1;
+                CheckIfVisited[I][J] = 0;
+                if (I != row - 1 || J != col - 1)
+                    Sum += map[I][J];
+                vis_i.push_back(I);
+                vis_j.push_back(J);
+            }
+            else
+                validmove4 = true;
+            ColorizeAndMonitor(row, col, map, I, J, Sum, vis_i, vis_j);
+            continue;
+        case 'q':
+            system("cls");
+            return;
+        default:
+            system("cls");
+            cout << RED << "Please press a valid key" << RESET << endl;
+            Sleep(1000);
+            system("cls");
+            ColorizeAndMonitor(row, col, map, I, J, Sum, vis_i, vis_j);
+            continue;
+        }
+    }
+    auto end = high_resolution_clock::now();
+    auto duration = duration_cast<seconds>(end - start);
+    if (win)
+    {
+        string LastWinDay, LastWinMonth, LastWinDate, LastWinTime, LastWinYear;
+        bool FindLastWin = true;
+        int TotalGames = 0, WonGames = 0, AllDurationSpent = 0;
+        auto currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        std::string timeString = std::ctime(&currentTime);
+        ifstream inFile("SaveUserData/UserData.txt");
+        vector<string> existingData;
+        string Line;
+        while (getline(inFile, Line))
+        {
+            existingData.push_back(Line);
+        }
+        inFile.close();
+        ofstream outFile("SaveUserData/UserData.txt");
+
+        outFile << username << " \t\t    Won       \t \t" << duration.count() << "\t\t" << timeString.substr(0, timeString.length() - 1) << "\t    " << nameofmap << endl;
+        for (const auto &data : existingData)
+        {
+            outFile << data << "\n";
+        }
+        outFile.close();
+        ifstream Data("SaveUserData/UserData.txt");
+        string line;
+        while (getline(Data, line))
+        {
+            stringstream ss(line);
+            GameData game;
+            ss >> game.username >> game.action >> game.timeduration >> game.day >> game.month >> game.date >> game.time >> game.year >> game.nameofmap;
+            if (username == game.username)
+                TotalGames++;
+            if (username == game.username && game.action == "Won")
+                WonGames++;
+            if (username == game.username)
+                AllDurationSpent += (game.timeduration);
+            if (username == game.username && game.action == "Won" && LastWinDay != "null")
+            {
+                LastWinDay = game.day;
+                LastWinMonth = game.month;
+                LastWinDate = game.date;
+                LastWinTime = game.time;
+                LastWinYear = game.year;
+            }
+        }
+        Data.close();
+        system("cls");
+        cout << MAGENTA << "Congratulations " << username << ".You won!" << RESET << endl;
+        cout << GREEN << "You've played " << CYAN << TotalGames << GREEN << " Games" << endl;
+        cout << "You've won " << CYAN << WonGames << GREEN << " Games" << endl;
+        cout << "You've spent " << CYAN << AllDurationSpent << GREEN << " seconds" << endl;
+        cout << "Your last won game was at " << CYAN << LastWinYear << RESET << " / " << CYAN << LastWinMonth << RESET << " / " << CYAN << LastWinDate << RESET << "   " << CYAN << LastWinTime << RESET << endl;
+        Sleep(10000);
+        system("cls");
+        return;
+    }
+    if (lose)
+    {
+        string LastWinDay, LastWinMonth, LastWinDate, LastWinTime, LastWinYear;
+        int TotalGames = 0, WonGames = 0, AllDurationSpent = 0;
+        system("cls");
+        ifstream inFile("SaveUserData/UserData.txt");
+        vector<string> existingData;
+        string Line;
+        while (getline(inFile, Line))
+        {
+            existingData.push_back(Line);
+        }
+        inFile.close();
+        ofstream outFile("SaveUserData/UserData.txt");
+
+        outFile << username << " \t\t    Lost       \t \t" << duration.count() << "\t\tnull"
+                << " null"
+                << " null"
+                << " null"
+                << " null"
+                << "\t    " << nameofmap << endl;
+        for (const auto &data : existingData)
+        {
+            outFile << data << "\n";
+        }
+        outFile.close();
+        ifstream Data("SaveUserData/UserData.txt");
+        string line;
+        while (getline(Data, line))
+        {
+            stringstream ss(line);
+            GameData game;
+            ss >> game.username >> game.action >> game.timeduration >> game.day >> game.month >> game.date >> game.time >> game.year >> game.nameofmap;
+            if (username == game.username)
+                TotalGames++;
+            if (username == game.username && game.action == "Won")
+                WonGames++;
+            if (username == game.username)
+                AllDurationSpent += game.timeduration;
+            if (username == game.username && game.action == "Won" && LastWinDay == "")
+            {
+                LastWinDay = game.day;
+                LastWinMonth = game.month;
+                LastWinDate = game.date;
+                LastWinTime = game.time;
+                LastWinYear = "2024";
+            }
+        }
+        Data.close();
+        system("cls");
+        cout << MAGENTA << "Sorry dear " << username << ".You lost!" << RESET << endl;
+        cout << GREEN << "You've played " << CYAN << TotalGames << GREEN << " Games" << endl;
+        cout << "You've won " << CYAN << WonGames << GREEN << " Games" << endl;
+        cout << "You've spent " << CYAN << AllDurationSpent << GREEN << " seconds" << endl;
+        if (LastWinTime != "")
+
+            cout << "Your last won game was at " << CYAN << LastWinYear << RESET << " / " << CYAN << LastWinMonth << RESET << " / " << CYAN << LastWinDate << RESET << "   " << CYAN << LastWinTime << endl
+                 << RESET;
+        else
+            cout << GREEN << "You haven't won any game" << RESET;
+        Sleep(10000);
+        system("cls");
+        return;
+    }
+    for (int i = 0; i < row; ++i)
+        delete[] map[i];
+    delete[] map;
+    return;
 }
