@@ -68,7 +68,6 @@ void History();
 void UserInfo();
 void LeaderBoard();
 void PlateDeleter(int row, int **&plate);
-void monitor(int row, int col, int **map);
 
 int main()
 {
@@ -598,7 +597,7 @@ void LeaderBoard()
     file.close();
 }
 
-void monitor(int row, int col, int **map)
+void monitor(int row, int col, int **path, int **map)
 {
     int MaxLength = to_string(map[0][0]).size();
     for (int i = 0; i < row; i++)
@@ -630,7 +629,11 @@ void monitor(int row, int col, int **map)
             {
                 cout << ' ';
             }
-            cout << map[i][j];
+            if ((map[i][j] == path[i][j]) && (map[i][j] != 0))
+            {
+                cout << GREEN;
+            }
+            cout << map[i][j] << WHITE;
             for (int k = 1; k <= (MaxLength - lengthofnumber) + 1; k += 2)
             {
                 cout << ' ';
@@ -647,51 +650,6 @@ void monitor(int row, int col, int **map)
         {
             cout << "-";
         }
-    }
-    cout << "+" << endl;
-}
-
-void monitor(int row, int col, int **path, int **map)
-{
-    int temp;
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    for (int i = 0; i < row; i++)
-    {
-        for (int j = 0; j < col; j++)
-        {
-            cout << "+-----";
-        }
-        cout << "+" << endl;
-        for (int j = 0; j < col; j++)
-        {
-            cout << "| ";
-            if (map[i][j] / 10 == 0)
-            {
-                if (map[i][j] >= 0)
-                    cout << "  ";
-                else
-                    cout << ' ';
-            }
-            else if (map[i][j] / 10 > 0)
-                cout << ' ';
-            if ((map[i][j] == path[i][j]) && (map[i][j] != 0))
-            {
-                SetConsoleTextAttribute(hConsole, 10);
-                cout << map[i][j];
-                SetConsoleTextAttribute(hConsole, 7);
-            }
-            else
-            {
-                cout << map[i][j];
-            }
-
-            cout << ' ';
-        }
-        cout << '|' << endl;
-    }
-    for (int j = 0; j < col; j++)
-    {
-        cout << "+-----";
     }
     cout << "+" << endl;
 }
