@@ -432,6 +432,7 @@ void PlaygroundSection()
 
 void History()
 {
+    
     ifstream file("SaveUserData/UserData.txt");
     system("cls");
     if (file.is_open())
@@ -489,7 +490,7 @@ void UserInfo()
             users.push_back(playerName);
             CounterForUsers++;
         }
-
+        //It shows the uniquename
         file.close();
         for (const auto &name : uniqueNames)
         {
@@ -544,7 +545,7 @@ void UserInfo()
         }
     }
     data.close();
-
+    //Here reads the desired data from the file
     int TotalGames = 0, WonGames = 0, AllDurationSpent = 0;
     string LastWinDate, LastWinDay, LastWinMonth, LastWinTime, LastWinYear;
 
@@ -584,6 +585,7 @@ void UserInfo()
 
 void LeaderBoard()
 {
+    //Here it reads from the second data file it has the username timespent and number of won games
     system("cls");
     ifstream file("SaveUserData/UniqueUsersData.txt");
     vector<GameDataForUniqueFile *> myvec;
@@ -1307,8 +1309,12 @@ void Blocker(int Bmin, int Bmax, int row, int col, int **&maze)
     }
 }
 
+
+
+//Colorize monitor is for Playground it colors current index as red and visited index as green
 void ColorizeAndMonitor(int row, int col, int **map, int Pos_x, int Pos_y, int pathSum, vector<int> vis_i, vector<int> vis_j)
 {
+    //It prints the table according to maximum size of the each block and the desired block
     int MaxLength = to_string(map[0][0]).size();
     for (int i = 0; i < row; i++)
     {
@@ -1340,11 +1346,13 @@ void ColorizeAndMonitor(int row, int col, int **map, int Pos_x, int Pos_y, int p
             {
                 cout << ' ';
             }
+            //Here gets the current location from Playground
             if (i == Pos_x && j == Pos_y)
             {
                 cout << RED << map[i][j] << RESET;
                 checkifprinted = true;
             }
+            //Here prints the visited block
             if (!checkifprinted)
             {
                 for (int m = 0; m < vis_i.size(); m++)
@@ -1358,6 +1366,7 @@ void ColorizeAndMonitor(int row, int col, int **map, int Pos_x, int Pos_y, int p
                         }
                     }
                 }
+                //It prints 0 as Yellow to be more visible
             }
             if (!checkifprinted && !checkifvisited)
             {
@@ -1505,16 +1514,19 @@ void Playground(string address)
     getline(cin, input);
     system("cls");
     using namespace std::chrono;
-    auto start = high_resolution_clock::now(); //Start counting time from here
+    //Start counting time from here
+    auto start = high_resolution_clock::now(); 
+    //Everytime it gives the row and column of the map and the current location as [I,J] and sum of the path and visited index (stored in a vector) to the function
     ColorizeAndMonitor(row, col, map, I, J, Sum, vis_i, vis_j);
     while (1)
     {
-
+        //Here checks the win condition
         if (Sum == map[row - 1][col - 1] && I == row - 1 && J == col - 1)
         {
             win = true;
             break;
         }
+        //Here checks the lose conditions
         if (I == row - 1 && J == col - 1 && Sum != map[row - 1][col - 1] || (validmove1 && validmove2 && validmove3 & validmove4) || (CheckIfVisited[row - 2][col - 1] == 0 && CheckIfVisited[row - 1][col - 2] == 0 && (I + 1 != row - 1 && J + 1 != col - 1 && I - 1 != row - 1 && J - 1 != col - 1)))
         {
             lose = true;
@@ -1525,6 +1537,8 @@ void Playground(string address)
         {
         case 'w':
             system("cls");
+            //Here CheckIfVisited is the copy map that has mentioned
+            //In every if it checks that the moving ahead is not a 0 or is not visited and it's located in the table
             if (I - 1 >= 0 && map[I - 1][J] != 0 && CheckIfVisited[I - 1][J] != 0)
             {
                 validmove1 = false;
@@ -1599,8 +1613,10 @@ void Playground(string address)
             continue;
         }
     }
+    //Here is the end of the timer
     auto end = high_resolution_clock::now();
     auto duration = duration_cast<seconds>(end - start);
+    //Here if the user wins the information save here in 2 txt files
     if (win)
     {
         string LastWinDay, LastWinMonth, LastWinDate, LastWinTime, LastWinYear;
@@ -1611,14 +1627,16 @@ void Playground(string address)
         ifstream inFile("SaveUserData/UserData.txt");
         vector<string> existingData;
         string Line;
+        //First it push them in a vector 
         while (getline(inFile, Line))
         {
             existingData.push_back(Line);
         }
         inFile.close();
         ofstream outFile("SaveUserData/UserData.txt");
-
+        //Second it puts the new data
         outFile << username << " \t\t    Won       \t \t" << duration.count() << "\t\t" << timeString.substr(0, timeString.length() - 1) << "\t    " << nameofmap << endl;
+        //Third it puts the old data under the new data
         for (const auto &data : existingData)
         {
             outFile << data << "\n";
@@ -1628,6 +1646,7 @@ void Playground(string address)
         string line;
         while (getline(Data, line))
         {
+            //Here was printing details after each match but now it only uses for time duration of each match
             stringstream ss(line);
             GameData game;
             ss >> game.username >> game.action >> game.timeduration >> game.day >> game.month >> game.date >> game.time >> game.year >> game.nameofmap;
@@ -1648,7 +1667,7 @@ void Playground(string address)
         }
         vector<GameDataForUniqueFile> userGameDataForUniqueFile;
 
-        // Read file
+        // Read file (Here is for unique information the username the repetition doens't matter )
         ifstream input_file("SaveUserData/UniqueUsersData.txt");
         if (input_file.is_open())
         {
@@ -1674,7 +1693,7 @@ void Playground(string address)
                 }
             }
 
-            // If user not found, add a new entry
+            // If user not found then add a new entry
             if (!foundUser)
             {
                 userGameDataForUniqueFile.push_back({username, AllDurationSpent, 1});
@@ -1697,6 +1716,7 @@ void Playground(string address)
         system("cls");
         return;
     }
+    //Here is for when user lost the game information saves as before but we don't have time for losers :) so we don't save it
     if (lose)
     {
         string LastWinDay, LastWinMonth, LastWinDate, LastWinTime, LastWinYear;
@@ -1747,7 +1767,7 @@ void Playground(string address)
         }
         vector<GameDataForUniqueFile> userGameDataForUniqueFile;
 
-        // Read file
+        // Read file as before
         ifstream input_file("SaveUserData/UniqueUsersData.txt");
         if (input_file.is_open())
         {
@@ -1773,7 +1793,7 @@ void Playground(string address)
                 }
             }
 
-            // If user not found, add a new entry
+            // If user not found then add a new entry
             if (!foundUser)
             {
                 userGameDataForUniqueFile.push_back({username, AllDurationSpent, 0});
