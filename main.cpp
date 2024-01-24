@@ -941,7 +941,6 @@ void PathMaker(int row, int col, int sum, int min, int max, int **&plate)
 
 void PathMakerHard(int row, int col, int len, int min, int max, int **&map)
 {
-    // it works only on even_rowed maps for now
     int i_pos = 0, j_pos = 0, sum = 0, range, diff;
     range = max - min + 1;
     while (1)
