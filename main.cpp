@@ -46,6 +46,14 @@ struct GameData
     string time;
     string year;
     string nameofmap;
+    int wingames;
+};
+
+struct GameDataForUniqueFile
+{
+    string username;
+    int timeduration;
+    int wingames;
 };
 
 void StartProgram();
@@ -455,10 +463,9 @@ void History()
         system("cls");
         return;
     }
-    string userInput;
     cout << RESET << "--------------------------------------------------------------------------------------------------------\n";
-    cout << MAGENTA << "\nPress Enter to go back to menu " << RESET;
-    getline(cin, userInput);
+    cout << MAGENTA << "Press any key to go back to menu" << RESET;
+    _getch();
     system("cls");
     return;
 }
@@ -577,7 +584,10 @@ void UserInfo()
 
 void LeaderBoard()
 {
-    ifstream file("SaveUserData/UserData.txt");
+    system("cls");
+    ifstream file("SaveUserData/UniqueUsersData.txt");
+    vector<GameDataForUniqueFile *> myvec;
+    int counter = 0;
     if (file.is_open())
     {
         string line;
@@ -585,9 +595,39 @@ void LeaderBoard()
         while (getline(file, line))
         {
             stringstream ss(line);
-            GameData game;
-            ss >> game.username >> game.action >> game.timeduration >> game.day >> game.month >> game.date >> game.time >> game.year >> game.nameofmap;
+            GameDataForUniqueFile *gameptr = new GameDataForUniqueFile[1];
+            ss >> gameptr->username >> gameptr->timeduration >> gameptr->wingames;
+            myvec.push_back(gameptr);
+            counter++;
         }
+        for (int i = 0; i < counter; i++)
+        {
+            for (int j = i + 1; j < counter; j++)
+            {
+                if (myvec[j]->wingames > myvec[i]->wingames)
+                {
+                    GameDataForUniqueFile *temp = myvec[i];
+                    myvec[i] = myvec[j];
+                    myvec[j] = temp;
+                }
+                else if (myvec[j]->wingames == myvec[i]->wingames)
+                {
+                    if (myvec[j]->timeduration < myvec[i]->timeduration)
+                    {
+                        GameDataForUniqueFile *temp = myvec[i];
+                        myvec[i] = myvec[j];
+                        myvec[j] = temp;
+                    }
+                }
+            }
+        }
+        for (int i = 0; i < 3; i++)
+        {
+            cout << BackgroundRED <<BLUE<< i+1 << " . " << myvec[i]->username << RESET << endl;
+        }
+        Sleep(3000);
+        system("cls");
+        return;
     }
 
     else
@@ -1337,6 +1377,7 @@ void ColorizeAndMonitor(int row, int col, int **map, int Pos_x, int Pos_y, int p
 
 void Playground(string address)
 {
+    // it receives an address it should like Maps/... or Drive/Folder/...
     ifstream file(address);
     if (!file.is_open())
     {
@@ -1346,7 +1387,7 @@ void Playground(string address)
         system("cls");
         return;
     }
-
+    //Find last Slash and t to find map name for example Maps/ali.txt  name of the map is ali.txt
     int BackSlashCounter = 0;
     int TCounter = 0;
     int Temp1, Temp2;
@@ -1381,6 +1422,7 @@ void Playground(string address)
     {
         nameofmap += address[i];
     }
+    // Reading map from the file
     Sleep(5000);
     int row, col;
     file >> row >> col;
@@ -1405,6 +1447,7 @@ void Playground(string address)
             }
         }
     }
+    //Getting a username
     system("cls");
     string username;
     cout << MAGENTA << "Enter a username please:" << endl
@@ -1420,6 +1463,7 @@ void Playground(string address)
             }
         }
     }
+    //Here we make a copy of the map and we place 0 on this map
     int **CheckIfVisited = new int *[row];
     for (int i = 0; i < row; i++)
     {
@@ -1448,7 +1492,7 @@ void Playground(string address)
     getline(cin, input);
     system("cls");
     using namespace std::chrono;
-    auto start = high_resolution_clock::now();
+    auto start = high_resolution_clock::now(); //Start counting time from here
     ColorizeAndMonitor(row, col, map, I, J, Sum, vis_i, vis_j);
     while (1)
     {
@@ -1589,14 +1633,54 @@ void Playground(string address)
                 LastWinYear = game.year;
             }
         }
+        vector<GameDataForUniqueFile> userGameDataForUniqueFile;
+
+        // Read file
+        ifstream input_file("SaveUserData/UniqueUsersData.txt");
+        if (input_file.is_open())
+        {
+            string line;
+            while (getline(input_file, line))
+            {
+                stringstream ss(line);
+                GameDataForUniqueFile game;
+                ss >> game.username >> game.timeduration >> game.wingames;
+                userGameDataForUniqueFile.push_back(game);
+            }
+            input_file.close();
+
+            // Update data for the given username
+            bool foundUser = false;
+            for (auto &game : userGameDataForUniqueFile)
+            {
+                if (game.username == username)
+                {
+                    foundUser = true;
+                    game.timeduration = AllDurationSpent;
+                    game.wingames++;
+                }
+            }
+
+            // If user not found, add a new entry
+            if (!foundUser)
+            {
+                userGameDataForUniqueFile.push_back({username, AllDurationSpent, 1});
+            }
+
+            // Write back to file
+            ofstream output_file("SaveUserData/UniqueUsersData.txt");
+            if (output_file.is_open())
+            {
+                for (const auto &game : userGameDataForUniqueFile)
+                {
+                    output_file << game.username << " " << game.timeduration << " " << game.wingames << endl;
+                }
+                output_file.close();
+            }
+        }
         Data.close();
-        system("cls");
-        cout << MAGENTA << "Congratulations " << username << ".You won!" << RESET << endl;
-        cout << GREEN << "You've played " << CYAN << TotalGames << GREEN << " Games" << endl;
-        cout << "You've won " << CYAN << WonGames << GREEN << " Games" << endl;
-        cout << "You've spent " << CYAN << AllDurationSpent << GREEN << " seconds" << endl;
-        cout << "Your last won game was at " << CYAN << LastWinYear << RESET << " / " << CYAN << LastWinMonth << RESET << " / " << CYAN << LastWinDate << RESET << "   " << CYAN << LastWinTime << RESET << endl;
-        Sleep(10000);
+        cout << MAGENTA << "\nCongratulations " << username << " . You won!" << endl;
+        Sleep(3000);
         system("cls");
         return;
     }
@@ -1648,19 +1732,54 @@ void Playground(string address)
                 LastWinYear = "2024";
             }
         }
-        Data.close();
-        system("cls");
-        cout << MAGENTA << "Sorry dear " << username << ".You lost!" << RESET << endl;
-        cout << GREEN << "You've played " << CYAN << TotalGames << GREEN << " Games" << endl;
-        cout << "You've won " << CYAN << WonGames << GREEN << " Games" << endl;
-        cout << "You've spent " << CYAN << AllDurationSpent << GREEN << " seconds" << endl;
-        if (LastWinTime != "")
+        vector<GameDataForUniqueFile> userGameDataForUniqueFile;
 
-            cout << "Your last won game was at " << CYAN << LastWinYear << RESET << " / " << CYAN << LastWinMonth << RESET << " / " << CYAN << LastWinDate << RESET << "   " << CYAN << LastWinTime << endl
-                 << RESET;
-        else
-            cout << GREEN << "You haven't won any game" << RESET;
-        Sleep(10000);
+        // Read file
+        ifstream input_file("SaveUserData/UniqueUsersData.txt");
+        if (input_file.is_open())
+        {
+            string line;
+            while (getline(input_file, line))
+            {
+                stringstream ss(line);
+                GameDataForUniqueFile game;
+                ss >> game.username >> game.timeduration >> game.wingames;
+                userGameDataForUniqueFile.push_back(game);
+            }
+            input_file.close();
+
+            // Update data for the given username
+            bool foundUser = false;
+            for (auto &game : userGameDataForUniqueFile)
+            {
+                if (game.username == username)
+                {
+                    foundUser = true;
+                    game.timeduration = AllDurationSpent;
+                    game.wingames;
+                }
+            }
+
+            // If user not found, add a new entry
+            if (!foundUser)
+            {
+                userGameDataForUniqueFile.push_back({username, AllDurationSpent, 0});
+            }
+
+            // Write back to file
+            ofstream output_file("SaveUserData/UniqueUsersData.txt");
+            if (output_file.is_open())
+            {
+                for (const auto &game : userGameDataForUniqueFile)
+                {
+                    output_file << game.username << " " << game.timeduration << " " << game.wingames << endl;
+                }
+                output_file.close();
+            }
+        }
+        Data.close();
+        cout << MAGENTA << "\nSorry dear " << username << ".You lost!" << RESET << endl;
+        Sleep(3000);
         system("cls");
         return;
     }
