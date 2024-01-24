@@ -755,10 +755,12 @@ void PathMakerHard(int row, int col, int len, int min, int max, int **&map)
 {
     int i_pos = 0, j_pos = 0, sum = 0, range;
     range = max - min + 1;
+    // odd-rowed maps
     if (row % 2 == 1)
     {
         while (1)
         {
+            // Going to last index of row on even rows
             if (i_pos % 2 == 0)
             {
                 for (int i = 0; i < col; i++)
@@ -772,6 +774,7 @@ void PathMakerHard(int row, int col, int len, int min, int max, int **&map)
                     sum += rnd;
                     j_pos++;
                     len--;
+                    // Ceck if we have reached the final block
                     if ((j_pos == col - 1) && (i_pos == row - 1))
                     {
                         map[i_pos][j_pos] = sum;
@@ -782,6 +785,7 @@ void PathMakerHard(int row, int col, int len, int min, int max, int **&map)
                 i_pos++;
             }
 
+            // Going backward on odd rows until : (remaining len == len of the easy path of the remaining map)
             if (i_pos % 2 == 1)
             {
                 for (int i = 0; i < col; i++)
@@ -795,6 +799,7 @@ void PathMakerHard(int row, int col, int len, int min, int max, int **&map)
                     sum += rnd;
                     j_pos--;
                     len--;
+                    // Check if the mentioned codition has become true
                     if (((row - i_pos - 1) + (col - j_pos - 1) - 2) == len)
                     {
                         j_pos++;
@@ -810,7 +815,7 @@ void PathMakerHard(int row, int col, int len, int min, int max, int **&map)
                                 map[x + i_pos][y + j_pos] = tempmap[x][y];
                             }
                         }
-                        // PlateDeleter(row, tempmap);
+                        PlateDeleter(row, tempmap);
                         return;
                     }
                 }
@@ -819,6 +824,7 @@ void PathMakerHard(int row, int col, int len, int min, int max, int **&map)
             }
         }
     }
+    // Odd-columned maps
     else if (col % 2 == 1)
     {
         while (1)
@@ -874,7 +880,7 @@ void PathMakerHard(int row, int col, int len, int min, int max, int **&map)
                                 map[x + i_pos][y + j_pos] = tempmap[x][y];
                             }
                         }
-                        // PlateDeleter(row, tempmap);
+                        PlateDeleter(row, tempmap);
                         return;
                     }
                 }
@@ -883,10 +889,13 @@ void PathMakerHard(int row, int col, int len, int min, int max, int **&map)
             }
         }
     }
+    // Check if the counts of rows and cols both are even
     else if ((row % 2 == 0) && (col % 2 == 0))
     {
+        // Going on algorithem until : (remaining len == len of the easy path of the remaining map)
         while ((row - i_pos - 1) + (col - j_pos - 1) < len)
         {
+            // Going to the last index of row in even rows (exepted from 2 last)
             if ((i_pos % 2 == 0) && (i_pos != row - 2))
             {
                 for (int i = 0; i < col; i++)
@@ -904,6 +913,7 @@ void PathMakerHard(int row, int col, int len, int min, int max, int **&map)
                 j_pos--;
                 i_pos++;
             }
+            // The row befor last one
             else if (i_pos == row - 2)
             {
                 while ((row - i_pos - 1) + (col - j_pos - 1) < len)
@@ -929,7 +939,7 @@ void PathMakerHard(int row, int col, int len, int min, int max, int **&map)
                     sum += rnd;
                     j_pos++;
                     len--;
-                    // check if it riched to the final block
+                    // check if we have reached to the final block
                     if (len == 0)
                     {
                         map[i_pos][j_pos] = sum;
@@ -958,6 +968,7 @@ void PathMakerHard(int row, int col, int len, int min, int max, int **&map)
                     j_pos++;
                     len--;
                 }
+                // The mentioned condotion has become True, so we use PathMakerEasy for remaining part
                 int temprow = row - i_pos;
                 int tempcol = col - j_pos;
                 int **tempmap = PlateMaker(temprow, tempcol);
@@ -969,9 +980,10 @@ void PathMakerHard(int row, int col, int len, int min, int max, int **&map)
                         map[x + i_pos][y + j_pos] = tempmap[x][y];
                     }
                 }
-                // PlateDeleter(row, tempmap);
+                PlateDeleter(row, tempmap);
                 return;
             }
+            // Going backward on odd rows
             else if (i_pos % 2 == 1)
             {
                 if (i_pos != row - 2)
@@ -987,6 +999,7 @@ void PathMakerHard(int row, int col, int len, int min, int max, int **&map)
                         sum += rnd;
                         j_pos--;
                         len--;
+                        // Check if the mentioned condition has become true
                         if (((row - i_pos - 1) + (col - j_pos - 1) - 2) == len)
                         {
                             j_pos++;
