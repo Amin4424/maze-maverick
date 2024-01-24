@@ -142,9 +142,10 @@ void CreateMapSection()
     char input = 0;
     while (input != '3')
     {
-        cout << "1. Easy" << endl;
-        cout << "2. Hard" << endl;
-        cout << "3. Quit" << endl;
+        cout << RED << "1. Easy" << endl;
+        cout << CYAN << "2. Hard" << endl;
+        cout << GREEN << "3. Quit" << endl;
+        cout << WHITE;
         input = _getch();
         switch (input)
         {
@@ -178,13 +179,23 @@ void CreateMapEasy()
     do
     {
         cout << "Enter the number of rows:\n";
-        cin >> row;
+        while (!(cin >> row))
+        {
+            cout << "Integer wanted" << endl;
+            cin.clear();
+            cin.ignore(INT_MAX, '\n');
+        }
     } while (row <= 0);
 
     do
     {
         cout << "Enter the number of columns:\n";
-        cin >> col;
+        while (!(cin >> col))
+        {
+            cout << "Integer wanted" << endl;
+            cin.clear();
+            cin.ignore(INT_MAX, '\n');
+        }
     } while (col <= 0);
 
     string mapname;
@@ -230,19 +241,34 @@ void CreateMapHard()
     do
     {
         cout << "Enter the number of rows:\n";
-        cin >> row;
+        while (!(cin >> row))
+        {
+            cout << "Integer wanted" << endl;
+            cin.clear();
+            cin.ignore(INT_MAX, '\n');
+        }
     } while (row <= 0);
 
     do
     {
         cout << "Enter the number of columns:\n";
-        cin >> col;
+        while (!(cin >> col))
+        {
+            cout << "Integer wanted" << endl;
+            cin.clear();
+            cin.ignore(INT_MAX, '\n');
+        }
     } while (col <= 0);
 
     do
     {
         cout << "Enter the lenght of path:\n";
-        cin >> len;
+        while (!(cin >> len))
+        {
+            cout << "Integer wanted" << endl;
+            cin.clear();
+            cin.ignore(INT_MAX, '\n');
+        }
         if ((len < (row + col - 2)) || (len >= (row * col)) || ((len - (row + col - 2)) % 2 != 0) || ((row % 2 == 0) && (col % 2 == 0) && (len == row * col - 1)))
         {
             cout << "Invalid path!\n";
@@ -251,24 +277,44 @@ void CreateMapHard()
     } while ((len < (row + col - 2)) || (len >= (row * col)) || ((len - (row + col - 2)) % 2 != 0) || ((row % 2 == 0) && (col % 2 == 0) && (len == row * col - 1)));
 
     cout << "Enter the minimum amount of each block:\n";
-    cin >> min;
+    while (!(cin >> min))
+    {
+        cout << "Integer wanted" << endl;
+        cin.clear();
+        cin.ignore(INT_MAX, '\n');
+    }
 
     do
     {
         cout << "Enter the maximum amount of each block:\n";
-        cin >> max;
+        while (!(cin >> max))
+        {
+            cout << "Integer wanted" << endl;
+            cin.clear();
+            cin.ignore(INT_MAX, '\n');
+        }
     } while (max < min);
 
     do
     {
         cout << "Enter the minimum number of blocked blocks:\n";
-        cin >> minB;
+        while (!(cin >> minB))
+        {
+            cout << "Integer wanted" << endl;
+            cin.clear();
+            cin.ignore(INT_MAX, '\n');
+        }
     } while (minB > (row * col - len - 1));
 
     do
     {
         cout << "Enter the maximum number of blocked blocks:\n";
-        cin >> maxB;
+        while (!(cin >> maxB))
+        {
+            cout << "Integer wanted" << endl;
+            cin.clear();
+            cin.ignore(INT_MAX, '\n');
+        }
     } while ((maxB > (row * col - len - 1)) || maxB < minB);
 
     string mapname;
