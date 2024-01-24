@@ -1,3 +1,4 @@
+1 		    Lost       	 	20		null null null null null	    e.txt
 hosein 	 Lost 	 3	null	null	null	null	null
 you 	 Won 	 4	Fri Jan 19 18:35:40 2024
 

@@ -224,8 +224,15 @@ void CreateMapHard()
         cout << "Enter the lenght of path:\n";
         cin >> len;
         if ((len < (row + col - 2)) || (len >= (row * col)) || ((len - (row + col - 2)) % 2 != 0) || ((row % 2 == 0) && (col % 2 == 0) && (len == row * col - 1)))
+        {
             cout << "Invalid path!\n";
-    } while ((len < (row + col - 2)) || (len >= (row * col)) || ((len - (row + col - 2)) % 2 != 0) || ((row % 2 == 0) && (col % 2 == 0) && (len == row * col - 1)));
+        }
+        else if ((row % 2 == 0)&&((col % 2 == 0))&&(len >= row * col - row))
+        {
+            cout << "Sorry! I'm unable to make map with that long path yet!\nPlease enter a shorter path!\n";
+        }
+        
+    } while ((len < (row + col - 2)) || (len >= (row * col)) || ((len - (row + col - 2)) % 2 != 0) || ((row % 2 == 0) && (col % 2 == 0) && (len == row * col - 1)) || ((row % 2 == 0)&&((col % 2 == 0))&&(len >= row * col - row)));
 
     cout << "Enter the minimum amount of each block:\n";
     cin >> min;
@@ -254,6 +261,16 @@ void CreateMapHard()
 
     int **map = PlateMaker(row, col);
     PathMakerHard(row, col, len, min, max, map);
+
+    int **ans = PlateMaker(row, col);
+    for (int i = 0; i < row; ++i)
+    {
+        for (int j = 0; j < col; ++j)
+        {
+            ans[i][j] = map[i][j];
+        }
+    }
+
     Blocker(minB, maxB, row, col, map);
 
     ofstream file("Maps/" + mapname + ".txt");
@@ -267,23 +284,30 @@ void CreateMapHard()
         }
         file << "\n";
     }
-    int **ans = PlateMaker(row, col);
-    int **maze_keeper = PlateMaker(row, col);
-    int startX = 0, startY = 0;
-    int endRow = row - 1, endCol = col - 1;
-    int pathSum = 0, pathlenght = 0;
-    int shortestPath = INT_MAX;
-    for (int i = 0; i < row; ++i)
-    {
-        for (int j = 0; j < col; ++j)
-        {
-            maze_keeper[i][j] = map[i][j];
-        }
-    }
-    bruteForce(map, row, col, startX, startY, endRow, endCol, pathSum, pathlenght, len, shortestPath, ans);
+
     system("cls");
-    ShowPath(row, col, maze_keeper, ans);
-    // PlateDeleter(row, map);
+    monitor(row, col, map, ans);
+
+    PlateDeleter(row, map);
+    PlateDeleter(row, ans);
+
+    // int **ans = PlateMaker(row, col);
+    // int **maze_keeper = PlateMaker(row, col);
+    // int startX = 0, startY = 0;
+    // int endRow = row - 1, endCol = col - 1;
+    // int pathSum = 0, pathlenght = 0;
+    // int shortestPath = INT_MAX;
+    // for (int i = 0; i < row; ++i)
+    // {
+    //     for (int j = 0; j < col; ++j)
+    //     {
+    //         maze_keeper[i][j] = map[i][j];
+    //     }
+    // }
+    // bruteForce(map, row, col, startX, startY, endRow, endCol, pathSum, pathlenght, len, shortestPath, ans);
+    // system("cls");
+    // ShowPath(row, col, maze_keeper, ans);
+    // // PlateDeleter(row, map);
 }
 
 void PlaygroundSection()
@@ -592,9 +616,10 @@ void PlaygroundSection()
             cout << "You've spent " << CYAN << AllDurationSpent << GREEN << " seconds" << endl;
             if (LastWinTime != "")
 
-                cout << "Your last won game was at " << CYAN << LastWinYear << RESET << " / " << CYAN << LastWinMonth << RESET << " / " << CYAN << LastWinDate << RESET << "   " << CYAN << LastWinTime << endl << RESET;
+                cout << "Your last won game was at " << CYAN << LastWinYear << RESET << " / " << CYAN << LastWinMonth << RESET << " / " << CYAN << LastWinDate << RESET << "   " << CYAN << LastWinTime << endl
+                     << RESET;
             else
-                cout <<GREEN<< "You haven't won any game"<<RESET;
+                cout << GREEN << "You haven't won any game" << RESET;
             Sleep(10000);
             system("cls");
             return;
